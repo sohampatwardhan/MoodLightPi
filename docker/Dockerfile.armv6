@@ -1,4 +1,6 @@
-FROM ghcr.io/cross-rs/arm-unknown-linux-gnueabihf:0.2.5
+# cross-rs base images are published amd64-only; pin the platform so this
+# builds on Apple Silicon (arm64) hosts via emulation. Output is still ARMv6.
+FROM --platform=linux/amd64 ghcr.io/cross-rs/arm-unknown-linux-gnueabihf:0.2.5
 
 # rs_ws281x builds a vendored C library via cc + bindgen.
 RUN apt-get update && apt-get install --assume-yes --no-install-recommends \
