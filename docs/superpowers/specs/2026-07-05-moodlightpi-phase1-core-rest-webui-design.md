@@ -3,15 +3,25 @@
 **Status:** Approved design, hardened v2 (2026-07-05, after `plan-harden` thorough review)
 **Scope:** Phase 1 of 4. Later phases (own specs): Phase 2 MQTT + Home Assistant, Phase 3 HomeKit, Phase 4 Matter.
 
-> **Phase 4 note (decided 2026-07-05):** Matter will be implemented in
-> JavaScript via [`matter.js`](https://github.com/project-chip/matter.js), not
-> Rust `rs-matter` — matter.js is significantly more mature. It runs as a
-> **separate out-of-process adapter** that talks to the Rust core over its REST
-> API (or MQTT from Phase 2), preserving the "one engine, many adapters" model.
-> Caveat: modern Node.js has no official ARMv6 support, so on the Pi Zero W this
-> depends on unofficial Node builds; alternatively the bridge can run on any
-> other always-on host pointing at the mood light. Final placement decided in
-> the Phase 4 spec.
+> **Phase 4 note (Matter — OPEN, decide in the Phase 4 spec):** Regardless of
+> language, Matter attaches to the core as an adapter over REST/MQTT (or via FFI
+> if in-process), so the choice is deferrable. Three candidates, each with a real
+> tradeoff — to be settled by a feasibility spike at the start of Phase 4:
+>
+> - **C++ `connectedhomeip`** (official SDK): most conformant / certifiable, and
+>   a Rust↔C++ C-ABI shim (`cxx`/`extern "C"`) fits a polyglot core. **But** it
+>   is a heavyweight framework (GN/pigweed build, RAM-hungry) and **ARMv6/32-bit
+>   is untested/unsupported** — cross-compiling it for the Pi Zero W may itself be
+>   a blocker. It is the *most* demanding option on this hardware; its advantage
+>   is conformance, not bare-metal leanness.
+> - **`matter.js`** (JS): mature and easy, runs as a separate process. Needs
+>   Node, which has no official ARMv6 build (unofficial only) — or run the bridge
+>   on another always-on host.
+> - **`rs-matter`** (Rust): leanest and best-integrated (same binary, native
+>   safety/concurrency), but the least mature; re-evaluate maturity at Phase 4.
+>
+> If the Pi Zero W can't host any of these acceptably, the Matter adapter can run
+> on a separate always-on host pointing at the mood light's REST/MQTT interface.
 
 ## 1. Goal
 
