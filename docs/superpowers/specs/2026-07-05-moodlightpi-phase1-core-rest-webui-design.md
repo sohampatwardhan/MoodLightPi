@@ -3,6 +3,16 @@
 **Status:** Approved design (2026-07-05)
 **Scope:** Phase 1 of 4. Later phases (own specs): Phase 2 MQTT + Home Assistant, Phase 3 HomeKit, Phase 4 Matter.
 
+> **Phase 4 note (decided 2026-07-05):** Matter will be implemented in
+> JavaScript via [`matter.js`](https://github.com/project-chip/matter.js), not
+> Rust `rs-matter` — matter.js is significantly more mature. It runs as a
+> **separate out-of-process adapter** that talks to the Rust core over its REST
+> API (or MQTT from Phase 2), preserving the "one engine, many adapters" model.
+> Caveat: modern Node.js has no official ARMv6 support, so on the Pi Zero W this
+> depends on unofficial Node builds; alternatively the bridge can run on any
+> other always-on host pointing at the mood light. Final placement decided in
+> the Phase 4 spec.
+
 ## 1. Goal
 
 A Rust/Axum service running on a Raspberry Pi Zero W that drives a Pimoroni
