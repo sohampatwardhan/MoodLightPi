@@ -1,5 +1,6 @@
 mod color;
 mod display;
+mod effects;
 mod geometry;
 mod state;
 
