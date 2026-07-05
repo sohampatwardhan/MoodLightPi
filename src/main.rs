@@ -1,4 +1,5 @@
 mod color;
+mod display;
 mod geometry;
 
 fn main() {
