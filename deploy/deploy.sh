@@ -10,6 +10,7 @@ BIN=target/$TARGET/release/moodlightpi
 file "$BIN" | grep -q 'ARM' || { echo "not an ARM binary"; exit 1; }
 
 ssh "$PI" 'systemctl stop moodlightpi 2>/dev/null || true'
-scp "$BIN" "$PI:/usr/local/bin/moodlightpi"
-scp deploy/moodlightpi.service "$PI:/etc/systemd/system/moodlightpi.service"
+# -O forces the legacy scp protocol (this Pi's sshd has no sftp-server subsystem).
+scp -O "$BIN" "$PI:/usr/local/bin/moodlightpi"
+scp -O deploy/moodlightpi.service "$PI:/etc/systemd/system/moodlightpi.service"
 ssh "$PI" 'systemctl daemon-reload && systemctl enable --now moodlightpi && systemctl status --no-pager moodlightpi'
