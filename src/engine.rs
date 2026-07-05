@@ -82,6 +82,7 @@ pub fn apply_command(state: &mut State, cmd: Command) {
 impl<D: Display> Engine<D> {
     pub fn new(display: D, state: State) -> (EngineHandle, Engine<D>) {
         let (cmd_tx, cmd_rx) = mpsc::channel(COMMAND_CAPACITY);
+        // seq == 0 is the reserved boot snapshot (never produced by a command).
         let snapshot = StateSnapshot { state: state.clone(), seq: 0, source: Source::Internal };
         let (snap_tx, snap_rx) = watch::channel(snapshot);
         let (frame_tx, _) = broadcast::channel(FRAME_CAPACITY);
@@ -106,14 +107,19 @@ impl<D: Display> Engine<D> {
         let _ = self.frame_tx.send(frame);
     }
 
+    /// Apply one command, bump seq, and broadcast the new snapshot.
+    /// Single place for seq/snapshot logic so it can't drift.
+    fn handle_command(&mut self, cmd: Command, source: Source) {
+        apply_command(&mut self.state, cmd);
+        self.seq += 1;
+        let _ = self.snap_tx.send(StateSnapshot {
+            state: self.state.clone(), seq: self.seq, source });
+    }
+
     fn drain_commands(&mut self) -> bool {
         let mut changed = false;
         while let Ok((cmd, source)) = self.cmd_rx.try_recv() {
-            apply_command(&mut self.state, cmd);
-            self.seq += 1;
-            let _ = self.snap_tx.send(StateSnapshot {
-                state: self.state.clone(), seq: self.seq, source,
-            });
+            self.handle_command(cmd, source);
             changed = true;
         }
         changed
@@ -124,6 +130,9 @@ impl<D: Display> Engine<D> {
         use tokio::time::{interval, Duration, MissedTickBehavior};
         let mut ticker = interval(Duration::from_millis(33)); // ~30 fps
         ticker.set_missed_tick_behavior(MissedTickBehavior::Skip);
+        // Render (and broadcast) the restored/default state at startup so a
+        // Solid-mode boot shows immediately, before any command arrives.
+        self.render_once();
         loop {
             let animating = matches!(self.state.mode, Mode::Effect) && self.state.power;
             if animating {
@@ -131,12 +140,7 @@ impl<D: Display> Engine<D> {
                     _ = ticker.tick() => { self.tick = self.tick.wrapping_add(1); }
                     n = self.cmd_rx.recv() => {
                         match n {
-                            Some((cmd, source)) => {
-                                apply_command(&mut self.state, cmd);
-                                self.seq += 1;
-                                let _ = self.snap_tx.send(StateSnapshot {
-                                    state: self.state.clone(), seq: self.seq, source });
-                            }
+                            Some((cmd, source)) => self.handle_command(cmd, source),
                             None => break, // all senders dropped -> shutdown
                         }
                         self.drain_commands();
@@ -145,10 +149,7 @@ impl<D: Display> Engine<D> {
             } else {
                 match self.cmd_rx.recv().await {
                     Some((cmd, source)) => {
-                        apply_command(&mut self.state, cmd);
-                        self.seq += 1;
-                        let _ = self.snap_tx.send(StateSnapshot {
-                            state: self.state.clone(), seq: self.seq, source });
+                        self.handle_command(cmd, source);
                         self.drain_commands();
                     }
                     None => break,
@@ -204,6 +205,19 @@ mod tests {
         let strip = engine.display_ref().last_strip();
         let idx = crate::geometry::xy_to_index(0, 0);
         assert_ne!(strip[idx], [0, 0, 0]);
+        drop(handle);
+    }
+
+    #[tokio::test]
+    async fn engine_broadcasts_initial_frame_on_startup() {
+        let (handle, engine) = Engine::new(MockDisplay::new(), crate::state::State::default());
+        // Subscribe BEFORE spawning so we don't miss the boot frame.
+        let mut frames = handle.subscribe_frames();
+        tokio::spawn(engine.run());
+        // No command sent: the initial render must still arrive.
+        let got = tokio::time::timeout(std::time::Duration::from_millis(500), frames.recv()).await;
+        let frame = got.expect("timed out waiting for boot frame").expect("frame channel closed");
+        assert_eq!(frame.len(), crate::geometry::PIXEL_COUNT);
         drop(handle);
     }
 }
