@@ -854,7 +854,7 @@ Expected: FAIL — items not found.
 use crate::color::Rgb;
 use crate::geometry::{Frame, BLACK_FRAME, HEIGHT, WIDTH};
 use crate::state::{Mode, State};
-use palette::{FromColor, Hsv, Srgb};
+use palette::{Hsv, IntoColor, Srgb};
 
 /// Effects the registry knows about. Single source of truth for both
 /// `GET /api/effects` and API validation.
@@ -874,13 +874,12 @@ fn phase_step(speed: u8) -> f32 {
     0.002 + (speed as f32 / 255.0) * 0.06
 }
 
-fn hsv_to_rgb(h: f32, s: f32, v: f32) -> Rgb {
-    let rgb: Srgb = Srgb::from_color(Hsv::new(h * 360.0, s, v));
-    Rgb {
-        r: (rgb.red * 255.0) as u8,
-        g: (rgb.green * 255.0) as u8,
-        b: (rgb.blue * 255.0) as u8,
-    }
+/// `hue_deg` in degrees (0..360). palette 0.7: convert via IntoColor, then
+/// into_format() to get clamped/rounded Srgb<u8>.
+fn hsv_to_rgb(hue_deg: f32, sat: f32, val: f32) -> Rgb {
+    let rgb_f: Srgb = Hsv::new(hue_deg, sat, val).into_color();
+    let rgb: Srgb<u8> = rgb_f.into_format();
+    Rgb { r: rgb.red, g: rgb.green, b: rgb.blue }
 }
 
 fn fill(color: Rgb) -> Frame {
@@ -907,7 +906,7 @@ fn rainbow(state: &State, tick: u64) -> Frame {
     let mut frame = BLACK_FRAME;
     for y in 0..HEIGHT {
         for x in 0..WIDTH {
-            let hue = ((x as f32 / WIDTH as f32) + phase).fract();
+            let hue = ((x as f32 / WIDTH as f32) + phase).fract() * 360.0;
             frame[y * WIDTH + x] = hsv_to_rgb(hue, 1.0, 1.0);
         }
     }
@@ -915,7 +914,7 @@ fn rainbow(state: &State, tick: u64) -> Frame {
 }
 
 fn colorcycle(state: &State, tick: u64) -> Frame {
-    let hue = (tick as f32 * phase_step(state.speed)).fract();
+    let hue = (tick as f32 * phase_step(state.speed)).fract() * 360.0;
     fill(hsv_to_rgb(hue, 1.0, 1.0))
 }
 
@@ -924,12 +923,14 @@ fn breathe(state: &State, tick: u64) -> Frame {
     let t = (tick as f32 * phase_step(state.speed)).fract();
     let tri = if t < 0.5 { t * 2.0 } else { 2.0 - t * 2.0 };
     let v = 0.15 + tri * 0.85;
-    let base = Hsv::from_color(Srgb::new(
+    // Read the state colour's hue/saturation (u8 -> f32 -> Hsv).
+    let src: Srgb = Srgb::new(
         state.rgb.r as f32 / 255.0,
         state.rgb.g as f32 / 255.0,
         state.rgb.b as f32 / 255.0,
-    ));
-    fill(hsv_to_rgb(base.hue.into_positive_degrees() / 360.0, base.saturation, v))
+    );
+    let base: Hsv = src.into_color();
+    fill(hsv_to_rgb(base.hue.into_positive_degrees(), base.saturation, v))
 }
 ```
 
