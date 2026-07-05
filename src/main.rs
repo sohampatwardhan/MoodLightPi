@@ -78,6 +78,7 @@ async fn main() -> anyhow::Result<()> {
         tokio::spawn(async move {
             let mut persister =
                 persist::Persister::new(path, Duration::from_millis(1000), initial);
+            let mut flush_tick = tokio::time::interval(Duration::from_millis(1000));
             loop {
                 tokio::select! {
                     changed = rx.changed() => {
@@ -87,7 +88,7 @@ async fn main() -> anyhow::Result<()> {
                         let snap = rx.borrow().clone();
                         persister.record(&snap.state);
                     }
-                    _ = tokio::time::sleep(Duration::from_millis(1000)) => {
+                    _ = flush_tick.tick() => {
                         persister.flush();
                     }
                 }

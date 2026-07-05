@@ -162,8 +162,9 @@ mod tests {
     async fn test_app() -> axum::Router {
         let (handle, engine) = Engine::new(MockDisplay::new(), crate::state::State::default());
         tokio::spawn(engine.run());
+        // Shutdown never fires in these REST tests and no handler here observes
+        // it, so dropping the sender is fine.
         let (_sd_tx, sd_rx) = tokio::sync::watch::channel(false);
-        std::mem::forget(_sd_tx); // keep the shutdown channel open for the test router
         router(AppState {
             engine: handle,
             security: SecurityConfig { allowed_host: "testhost".into() },
