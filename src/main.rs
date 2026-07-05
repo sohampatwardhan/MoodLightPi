@@ -2,6 +2,7 @@ mod color;
 mod display;
 mod effects;
 mod geometry;
+mod persist;
 mod state;
 
 fn main() {
