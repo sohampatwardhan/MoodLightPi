@@ -112,6 +112,7 @@ pub fn router(state: AppState) -> Router {
         .route("/api/color", post(post_color))
         .route("/api/brightness", post(post_brightness))
         .route("/api/effect", post(post_effect))
+        .route("/ws", get(crate::ws::ws_handler))
         .with_state(state)
 }
 

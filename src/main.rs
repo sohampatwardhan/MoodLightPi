@@ -6,6 +6,7 @@ mod engine;
 mod geometry;
 mod persist;
 mod state;
+mod ws;
 
 fn main() {
     println!("moodlightpi v{}", env!("CARGO_PKG_VERSION"));
