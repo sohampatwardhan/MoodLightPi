@@ -161,6 +161,15 @@ impl<D: Display> Engine<D> {
     }
 }
 
+impl Engine<Box<dyn crate::display::Display>> {
+    pub fn new_boxed(
+        display: Box<dyn crate::display::Display>,
+        state: State,
+    ) -> (EngineHandle, Engine<Box<dyn crate::display::Display>>) {
+        Engine::new(display, state)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -38,6 +38,12 @@ impl Display for MockDisplay {
     }
 }
 
+impl Display for Box<dyn Display> {
+    fn show(&mut self, frame: &crate::geometry::Frame, brightness: u8) -> anyhow::Result<()> {
+        (**self).show(frame, brightness)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
