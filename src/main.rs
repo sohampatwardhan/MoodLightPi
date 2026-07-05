@@ -1,3 +1,4 @@
+mod api;
 mod color;
 mod display;
 mod effects;
