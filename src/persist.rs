@@ -39,13 +39,15 @@ pub struct Persister {
 }
 
 impl Persister {
-    pub fn new(path: PathBuf, min_interval: std::time::Duration) -> Self {
-        let existing = load(&path);
+    /// `initial` is the already-loaded on-boot state (avoids a second disk read
+    /// and keeps the dedup baseline consistent with what the engine was seeded
+    /// with).
+    pub fn new(path: PathBuf, min_interval: std::time::Duration, initial: State) -> Self {
         Self {
             path,
             min_interval,
             last_written: None,
-            last_state: Some(existing),
+            last_state: Some(initial),
             pending: None,
         }
     }

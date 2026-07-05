@@ -40,6 +40,12 @@ impl SecurityConfig {
 pub struct AppState {
     pub engine: EngineHandle,
     pub security: SecurityConfig,
+    /// Flips to true when the process is shutting down; WS loops observe this so
+    /// upgraded connections close promptly and don't keep graceful shutdown
+    /// pending (which would block the engine from clearing the panel).
+    pub shutdown: tokio::sync::watch::Receiver<bool>,
+    /// Which Display backend is live: "hardware" or "mock".
+    pub backend: &'static str,
 }
 
 fn check(headers: &HeaderMap, sec: &SecurityConfig) -> Result<(), StatusCode> {
@@ -56,8 +62,10 @@ async fn send(engine: &EngineHandle, cmd: Command) -> Result<(), StatusCode> {
         .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)
 }
 
-pub async fn healthz() -> impl IntoResponse {
-    Json(json!({ "alive": true, "hardware": "ok" }))
+pub async fn healthz(AxState(st): AxState<AppState>) -> impl IntoResponse {
+    // `backend` is "hardware" when the pHAT driver initialised, else "mock"
+    // (on the Pi, "mock" signals a hardware init failure — see main.rs).
+    Json(json!({ "alive": true, "backend": st.backend }))
 }
 
 async fn get_state(headers: HeaderMap, AxState(st): AxState<AppState>) -> Result<impl IntoResponse, StatusCode> {
@@ -154,9 +162,13 @@ mod tests {
     async fn test_app() -> axum::Router {
         let (handle, engine) = Engine::new(MockDisplay::new(), crate::state::State::default());
         tokio::spawn(engine.run());
+        let (_sd_tx, sd_rx) = tokio::sync::watch::channel(false);
+        std::mem::forget(_sd_tx); // keep the shutdown channel open for the test router
         router(AppState {
             engine: handle,
             security: SecurityConfig { allowed_host: "testhost".into() },
+            shutdown: sd_rx,
+            backend: "mock",
         })
     }
 

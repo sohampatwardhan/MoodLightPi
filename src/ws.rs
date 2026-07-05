@@ -34,15 +34,25 @@ async fn client_loop(mut socket: WebSocket, st: AppState) {
     }
     // 2. Stream frames; drop this client on lag (never back-pressure the engine).
     let mut rx = st.engine.subscribe_frames();
+    let mut shutdown = st.shutdown.clone();
+    // If shutdown is already underway, don't start streaming.
+    if *shutdown.borrow() {
+        return;
+    }
     loop {
-        match rx.recv().await {
-            Ok(frame) => {
-                if socket.send(Message::Text(frame_to_json(&frame))).await.is_err() {
-                    break; // client gone
+        tokio::select! {
+            // On shutdown, exit promptly so the upgraded connection closes and
+            // hyper's graceful shutdown can complete (see AppState::shutdown).
+            _ = shutdown.changed() => break,
+            recv = rx.recv() => match recv {
+                Ok(frame) => {
+                    if socket.send(Message::Text(frame_to_json(&frame))).await.is_err() {
+                        break; // client gone
+                    }
                 }
+                Err(RecvError::Lagged(_)) => continue, // slow client: skip missed frames
+                Err(RecvError::Closed) => break,
             }
-            Err(RecvError::Lagged(_)) => continue, // slow client: skip missed frames
-            Err(RecvError::Closed) => break,
         }
     }
 }
