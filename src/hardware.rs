@@ -7,6 +7,13 @@ pub struct Ws281xDisplay {
     controller: Controller,
 }
 
+// SAFETY: `Controller` is `!Send` because it holds raw pointers into DMA/mmap
+// regions. `Ws281xDisplay` is owned exclusively by the single-writer render
+// engine task (see engine.rs) and is never shared or accessed concurrently
+// from more than one thread, so transferring ownership to the async runtime's
+// thread is sound.
+unsafe impl Send for Ws281xDisplay {}
+
 impl Ws281xDisplay {
     /// `dma_channel` defaults to 10; NEVER 5 (filesystem corruption).
     pub fn new(dma_channel: i32) -> anyhow::Result<Self> {

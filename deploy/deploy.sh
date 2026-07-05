@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
+# Build the ARMv6 binary and deploy it to the Pi as a systemd service.
 set -euo pipefail
+cd "$(dirname "$0")/.."
 PI=root@192.168.1.230
 TARGET=arm-unknown-linux-gnueabihf
 BIN=target/$TARGET/release/moodlightpi
 
-# cross-rs images are amd64-only; on Apple Silicon hosts this runs them under
-# emulation (no-op on amd64 hosts). Output binary is still ARMv6.
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
-
-cross build --release --features hardware --target "$TARGET"
+./deploy/build.sh
 file "$BIN" | grep -q 'ARM' || { echo "not an ARM binary"; exit 1; }
 
 ssh "$PI" 'systemctl stop moodlightpi 2>/dev/null || true'
