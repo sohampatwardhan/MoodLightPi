@@ -13,9 +13,10 @@ cd "$(dirname "$0")/.."
 PI=${MLP_PI:-root@192.168.1.230}
 SRC=${MLP_SRC:-/root/moodlightpi}
 
-echo "shipping source to $PI:$SRC ..."
-tar czf - --exclude=./target --exclude=./.git . \
-  | ssh "$PI" "rm -rf '$SRC' && mkdir -p '$SRC' && tar xzf - -C '$SRC'"
+echo "shipping source to $PI:$SRC (preserving target/ for incremental builds) ..."
+# Refresh source but keep the build cache (target/), so rebuilds are incremental.
+ssh "$PI" "mkdir -p '$SRC' && find '$SRC' -maxdepth 1 -mindepth 1 ! -name target -exec rm -rf {} +"
+tar czf - --exclude=./target --exclude=./.git . | ssh "$PI" "tar xzf - -C '$SRC'"
 
 echo "building on the Pi (LTO off, codegen-units=16 to fit 512 MB) — this is slow (~2 h cold, minutes incremental) ..."
 ssh "$PI" "cd '$SRC' && CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16 PATH=\$HOME/.cargo/bin:\$PATH cargo build --release --features hardware"
