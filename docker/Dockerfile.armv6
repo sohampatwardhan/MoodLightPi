@@ -1,0 +1,10 @@
+FROM ghcr.io/cross-rs/arm-unknown-linux-gnueabihf:0.2.5
+
+# rs_ws281x builds a vendored C library via cc + bindgen.
+RUN apt-get update && apt-get install --assume-yes --no-install-recommends \
+        libclang-dev clang git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Ensure the C toolchain emits ARMv6 (ARM1176), not ARMv7.
+ENV CFLAGS_arm_unknown_linux_gnueabihf="-march=armv6 -mfpu=vfp -mfloat-abi=hard"
+ENV BINDGEN_EXTRA_CLANG_ARGS_arm_unknown_linux_gnueabihf="--target=arm-linux-gnueabihf -march=armv6"
