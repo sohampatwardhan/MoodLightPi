@@ -6,6 +6,7 @@ mod engine;
 mod geometry;
 mod persist;
 mod state;
+mod web;
 mod ws;
 
 fn main() {

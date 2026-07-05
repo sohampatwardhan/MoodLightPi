@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoodLightPi</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main>
+  <h1>MoodLightPi</h1>
+  <canvas id="preview" width="320" height="160" aria-label="LED preview"></canvas>
+  <div class="row">
+    <button id="power">Toggle Power</button>
+  </div>
+  <label>Color <input type="color" id="color" value="#ff9329"></label>
+  <label>Brightness <input type="range" id="brightness" min="0" max="255" value="80"></label>
+  <label>Effect
+    <select id="effect"></select>
+  </label>
+  <label>Speed <input type="range" id="speed" min="0" max="255" value="128"></label>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

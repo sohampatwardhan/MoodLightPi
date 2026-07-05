@@ -105,6 +105,9 @@ async fn post_effect(headers: HeaderMap, AxState(st): AxState<AppState>, Json(b)
 
 pub fn router(state: AppState) -> Router {
     Router::new()
+        .route("/", get(crate::web::serve_index))
+        .route("/style.css", get(crate::web::serve_asset))
+        .route("/app.js", get(crate::web::serve_asset))
         .route("/healthz", get(healthz))
         .route("/api/state", get(get_state))
         .route("/api/effects", get(get_effects))
