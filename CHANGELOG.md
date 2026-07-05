@@ -29,17 +29,21 @@ Phase 1 — core mood-light service (REST API + web UI).
   shutdown (SIGINT/SIGTERM) that clears the panel and flushes state.
 - **Security**: `Host`/`Origin` validation on every route and the WS upgrade
   (DNS-rebinding / CSRF guard) for the LAN-trusted, root-run service.
-- **Build/deploy**: arm64-native Docker builder for ARMv6 (`deploy/build.sh`),
-  idempotent Pi provisioning (`deploy/provision.sh`), and one-command deploy with
-  a systemd unit (`deploy/deploy.sh`).
+- **Build/deploy**: native on-Pi build over SSH (`deploy/build.sh`,
+  ARMv6-correct), idempotent Pi provisioning + build-toolchain setup
+  (`deploy/provision.sh`), and one-command deploy with a systemd unit
+  (`deploy/deploy.sh`).
 
 ### Notes
 - On-device acceptance (GRB byte order, pHAT pixel-map orientation, sustained FPS,
   brown-out headroom) is finalized against the physical panel; the byte
   permutation in `src/hardware.rs` and `PHAT_MAP` in `src/geometry.rs` are the
   adjustment points if the panel disagrees.
-- The `cross` tool does not work on Apple Silicon for this target; the custom
-  arm64-native builder replaces it.
+- Cross-compiling for the Pi Zero's ARMv6 from a Debian-based host does not work
+  (Debian armhf is ARMv7-baseline → `SIGILL` on the ARM1176); MoodLightPi builds
+  **natively on the Pi** (Raspberry Pi OS / DietPi userland is ARMv6). Verified
+  on-device: `backend: hardware`, red-shows-red (GRB), persistence across reboot,
+  clean graceful shutdown.
 
 ### Fixed (during development review)
 - Engine now renders restored state at startup (not only after the first command).

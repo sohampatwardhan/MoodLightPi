@@ -51,31 +51,33 @@ cargo run           # runs with the mock display; override the bind for local us
 MLP_BIND=127.0.0.1:8080 MLP_HOST=127.0.0.1 cargo run
 ```
 
-## Build for the Pi (ARMv6)
+## Build for the Pi (ARMv6) — build *on* the Pi
 
-Cross-compiling for the Pi Zero's ARM1176 is done with a self-contained
-arm64/amd64-native Docker builder (no `cross`, no emulation quirks):
+The Pi Zero W is **ARMv6** (ARM1176). **Cross-compiling from a Debian-based host
+does not work**: Debian's armhf port is ARMv7-baseline (libc/crt/libgcc), so such
+binaries `SIGILL` on the Pi. Raspberry Pi OS / DietPi userland *is* ARMv6, so the
+reliable path is to **build on the Pi itself** (the `deploy/` scripts do this over
+SSH — no `scp` needed, since minimal images often lack it).
 
-```bash
-./deploy/build.sh   # -> target/arm-unknown-linux-gnueabihf/release/moodlightpi
-```
-
-Requires Docker. The builder installs rustup + the `arm-unknown-linux-gnueabihf`
-target + the armhf gcc cross-toolchain and forces `-march=armv6` for the vendored
-`rs_ws281x` C library.
+> First build is slow — ~2 h cold on a single-core 512 MB Pi Zero. Incremental
+> rebuilds are minutes (LTO is disabled and the build tree is kept on the Pi).
 
 ## Deploy
 
 ```bash
-# 1. Provision the Pi ONCE (disables PWM audio so GPIO18 is free) then reboot:
-scp deploy/provision.sh root@<pi>:/tmp/ && ssh root@<pi> 'bash /tmp/provision.sh && reboot'
+# 1. One-time: provision the Pi (audio off + state dir + build toolchain + swap):
+ssh root@<pi> 'bash -s' < deploy/provision.sh
+#    Reboot if audio was just disabled (frees GPIO18):
+ssh root@<pi> reboot
 
-# 2. Build + install the systemd service:
+# 2. Build (on the Pi) + install & enable the service:
 ./deploy/deploy.sh
 ```
 
-`deploy/deploy.sh` builds the ARMv6 binary, copies it + the unit to the Pi, and
-enables `moodlightpi.service` (runs as root, restarts on failure).
+`deploy/build.sh` ships the source via `tar`-over-SSH and runs `cargo build
+--release --features hardware` on the Pi; `deploy/deploy.sh` then installs the
+binary + unit and enables `moodlightpi.service` (root, restart-on-failure).
+Override the target with `MLP_PI=user@host`.
 
 ## Configuration (environment)
 

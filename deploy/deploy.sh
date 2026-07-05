@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
-# Build the ARMv6 binary and deploy it to the Pi as a systemd service.
+# Build (natively on the Pi) and install/enable the systemd service.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PI=root@192.168.1.230
-TARGET=arm-unknown-linux-gnueabihf
-BIN=target/$TARGET/release/moodlightpi
+PI=${MLP_PI:-root@192.168.1.230}
+SRC=${MLP_SRC:-/root/moodlightpi}
 
 ./deploy/build.sh
-file "$BIN" | grep -q 'ARM' || { echo "not an ARM binary"; exit 1; }
 
-ssh "$PI" 'systemctl stop moodlightpi 2>/dev/null || true'
-# -O forces the legacy scp protocol (this Pi's sshd has no sftp-server subsystem).
-scp -O "$BIN" "$PI:/usr/local/bin/moodlightpi"
-scp -O deploy/moodlightpi.service "$PI:/etc/systemd/system/moodlightpi.service"
-ssh "$PI" 'systemctl daemon-reload && systemctl enable --now moodlightpi && systemctl status --no-pager moodlightpi'
+echo "installing binary + unit and (re)starting service ..."
+ssh "$PI" "
+  systemctl stop moodlightpi 2>/dev/null || true
+  install -m 755 '$SRC/target/release/moodlightpi' /usr/local/bin/moodlightpi
+  install -m 644 '$SRC/deploy/moodlightpi.service' /etc/systemd/system/moodlightpi.service
+  systemctl daemon-reload
+  systemctl enable --now moodlightpi
+  sleep 3
+  systemctl is-active moodlightpi
+  systemctl status --no-pager moodlightpi | sed -n '1,6p'
+"
