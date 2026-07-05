@@ -7,8 +7,9 @@ Wants=network-online.target
 Type=simple
 User=root
 Environment=RUST_LOG=info
-Environment=MLP_HOST=192.168.1.230
-Environment=MLP_BIND=192.168.1.230:80
+Environment=MLP_BIND=0.0.0.0:80
+# MLP_HOST is optional (comma-separated extra allowed Host values); LAN hosts
+# (private IPs, *.local, bare hostnames, localhost) are accepted automatically.
 ExecStart=/usr/local/bin/moodlightpi
 Restart=on-failure
 RestartSec=2

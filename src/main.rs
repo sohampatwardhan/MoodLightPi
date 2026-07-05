@@ -103,14 +103,26 @@ async fn main() -> anyhow::Result<()> {
     let (shutdown_tx, shutdown_rx) = tokio::sync::watch::channel(false);
 
     // 4. Bind HTTP only after the engine is live.
-    let allowed_host = std::env::var("MLP_HOST").unwrap_or_else(|_| "192.168.1.230".into());
+    // Optional extra host allowlist (comma-separated); LAN hosts (private IPs,
+    // *.local, bare hostnames, localhost) are accepted automatically.
+    let extra_hosts = std::env::var("MLP_HOST")
+        .ok()
+        .map(|s| {
+            s.split(',')
+                .map(|x| x.trim().to_string())
+                .filter(|x| !x.is_empty())
+                .collect()
+        })
+        .unwrap_or_default();
     let app = api::router(api::AppState {
         engine: handle,
-        security: api::SecurityConfig { allowed_host },
+        security: api::SecurityConfig { extra_hosts },
         shutdown: shutdown_rx,
         backend,
     });
-    let bind = std::env::var("MLP_BIND").unwrap_or_else(|_| "192.168.1.230:80".into());
+    // Bind all interfaces by default (the Pi may be multi-homed); the Host/Origin
+    // check — not the bind address — is what enforces the LAN-only policy.
+    let bind = std::env::var("MLP_BIND").unwrap_or_else(|_| "0.0.0.0:80".into());
     let addr: SocketAddr = bind.parse()?;
     let listener = tokio::net::TcpListener::bind(addr).await?;
     tracing::info!("listening on {addr} (backend: {backend})");

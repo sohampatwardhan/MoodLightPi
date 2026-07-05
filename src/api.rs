@@ -11,26 +11,51 @@ use serde_json::json;
 
 #[derive(Clone)]
 pub struct SecurityConfig {
-    /// Host (no scheme/port) the service is reached at on the LAN.
-    pub allowed_host: String,
+    /// Extra explicit host allowlist (from `MLP_HOST`, comma-separated). LAN
+    /// addresses / hostnames are accepted automatically regardless of this.
+    pub extra_hosts: Vec<String>,
+}
+
+/// Strip an optional `:port` (IPv4 / hostname; IPv6 literals aren't handled,
+/// which is fine for LAN use).
+fn host_label(h: &str) -> &str {
+    h.split(':').next().unwrap_or(h)
+}
+
+/// True for hosts that can only be a device on the local network — private/
+/// loopback/link-local IPv4 literals, `*.local`, bare hostnames, `localhost`.
+/// A public FQDN (e.g. `evil.com`) returns false, which is what blocks
+/// DNS-rebinding: the browser sends the *attacker's* domain as `Host`.
+fn is_lan_hostish(h: &str) -> bool {
+    let h = host_label(h);
+    if h.is_empty() {
+        return false;
+    }
+    if h == "localhost" || h.ends_with(".local") {
+        return true;
+    }
+    match h.parse::<std::net::Ipv4Addr>() {
+        Ok(ip) => ip.is_private() || ip.is_loopback() || ip.is_link_local(),
+        Err(_) => !h.contains('.'), // bare hostname = LAN; dotted FQDN = reject
+    }
 }
 
 impl SecurityConfig {
+    fn allowed(&self, h: &str) -> bool {
+        is_lan_hostish(h) || self.extra_hosts.iter().any(|e| e == host_label(h))
+    }
     pub fn host_ok(&self, host_header: Option<&str>) -> bool {
-        match host_header {
-            Some(h) => h.split(':').next() == Some(self.allowed_host.as_str()),
-            None => false,
-        }
+        host_header.map(|h| self.allowed(h)).unwrap_or(false)
     }
     /// Origin is only sent by browsers. Absent = non-browser client (curl) = allow.
-    /// Present = must match the expected host (defeats DNS-rebinding/CSRF).
+    /// Present = must resolve to a LAN host (defeats DNS-rebinding/CSRF).
     pub fn origin_ok(&self, origin_header: Option<&str>) -> bool {
         match origin_header {
             None => true,
             Some(o) => o
                 .strip_prefix("http://")
                 .or_else(|| o.strip_prefix("https://"))
-                .map(|rest| rest.split(':').next() == Some(self.allowed_host.as_str()))
+                .map(|rest| self.allowed(rest))
                 .unwrap_or(false),
         }
     }
@@ -133,23 +158,38 @@ mod tests {
 
     #[test]
     fn allows_expected_lan_host() {
-        let cfg = SecurityConfig { allowed_host: "192.168.1.230".into() };
+        let cfg = SecurityConfig { extra_hosts: vec![] };
         assert!(cfg.host_ok(Some("192.168.1.230")));
         assert!(cfg.host_ok(Some("192.168.1.230:80")));
     }
 
     #[test]
     fn rejects_foreign_host_and_missing() {
-        let cfg = SecurityConfig { allowed_host: "192.168.1.230".into() };
+        let cfg = SecurityConfig { extra_hosts: vec![] };
         assert!(!cfg.host_ok(Some("evil.example.com")));
         assert!(!cfg.host_ok(None));
     }
 
     #[test]
     fn origin_ok_only_for_expected_or_absent_nonbrowser() {
-        let cfg = SecurityConfig { allowed_host: "192.168.1.230".into() };
+        let cfg = SecurityConfig { extra_hosts: vec![] };
         assert!(cfg.origin_ok(Some("http://192.168.1.230")));
         assert!(cfg.origin_ok(None));
+        assert!(!cfg.origin_ok(Some("http://evil.example.com")));
+    }
+
+    #[test]
+    fn accepts_any_lan_host_and_rejects_public() {
+        let cfg = SecurityConfig { extra_hosts: vec![] };
+        // multi-homed Pi: any private IP, plus .local / bare hostname / localhost
+        assert!(cfg.host_ok(Some("192.168.1.230")));
+        assert!(cfg.host_ok(Some("192.168.2.161:80")));
+        assert!(cfg.host_ok(Some("10.0.0.5")));
+        assert!(cfg.host_ok(Some("moodlightpi.local")));
+        assert!(cfg.host_ok(Some("moodlightpi")));
+        assert!(cfg.host_ok(Some("localhost:80")));
+        // public FQDN rejected (DNS-rebinding guard)
+        assert!(!cfg.host_ok(Some("evil.example.com")));
         assert!(!cfg.origin_ok(Some("http://evil.example.com")));
     }
 
@@ -167,7 +207,7 @@ mod tests {
         let (_sd_tx, sd_rx) = tokio::sync::watch::channel(false);
         router(AppState {
             engine: handle,
-            security: SecurityConfig { allowed_host: "testhost".into() },
+            security: SecurityConfig { extra_hosts: vec![] },
             shutdown: sd_rx,
             backend: "mock",
         })
