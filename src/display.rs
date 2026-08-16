@@ -19,7 +19,9 @@ pub struct MockDisplay {
 
 impl MockDisplay {
     pub fn new() -> Self {
-        Self { strip: [[0; 3]; PIXEL_COUNT] }
+        Self {
+            strip: [[0; 3]; PIXEL_COUNT],
+        }
     }
     pub fn last_strip(&self) -> &[[u8; 3]; PIXEL_COUNT] {
         &self.strip

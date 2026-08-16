@@ -26,7 +26,11 @@ fn phase_step(speed: u8) -> f32 {
 fn hsv_to_rgb(hue_deg: f32, sat: f32, val: f32) -> Rgb {
     let rgb_f: Srgb = Hsv::new(hue_deg, sat, val).into_color();
     let rgb: Srgb<u8> = rgb_f.into_format();
-    Rgb { r: rgb.red, g: rgb.green, b: rgb.blue }
+    Rgb {
+        r: rgb.red,
+        g: rgb.green,
+        b: rgb.blue,
+    }
 }
 
 fn fill(color: Rgb) -> Frame {
@@ -77,7 +81,11 @@ fn breathe(state: &State, tick: u64) -> Frame {
         state.rgb.b as f32 / 255.0,
     );
     let base: Hsv = src.into_color();
-    fill(hsv_to_rgb(base.hue.into_positive_degrees(), base.saturation, v))
+    fill(hsv_to_rgb(
+        base.hue.into_positive_degrees(),
+        base.saturation,
+        v,
+    ))
 }
 
 #[cfg(test)]
@@ -98,14 +106,32 @@ mod tests {
 
     #[test]
     fn solid_mode_fills_with_state_color() {
-        let s = State { mode: Mode::Solid, rgb: Rgb { r: 10, g: 20, b: 30 }, ..State::default() };
+        let s = State {
+            mode: Mode::Solid,
+            rgb: Rgb {
+                r: 10,
+                g: 20,
+                b: 30,
+            },
+            ..State::default()
+        };
         let frame = render_frame(&s, 0);
-        assert!(frame.iter().all(|&p| p == Rgb { r: 10, g: 20, b: 30 }));
+        assert!(frame.iter().all(|&p| p
+            == Rgb {
+                r: 10,
+                g: 20,
+                b: 30
+            }));
     }
 
     #[test]
     fn rainbow_changes_over_time_and_fills_all_pixels() {
-        let s = State { mode: Mode::Effect, effect_name: "rainbow".into(), speed: 128, ..State::default() };
+        let s = State {
+            mode: Mode::Effect,
+            effect_name: "rainbow".into(),
+            speed: 128,
+            ..State::default()
+        };
         let f0 = render_frame(&s, 0);
         let f1 = render_frame(&s, 10);
         assert_eq!(f0.len(), PIXEL_COUNT);
@@ -114,17 +140,29 @@ mod tests {
 
     #[test]
     fn breathe_returns_state_hue_but_varies_value() {
-        let s = State { mode: Mode::Effect, effect_name: "breathe".into(),
-                        rgb: Rgb { r: 255, g: 0, b: 0 }, speed: 128, ..State::default() };
+        let s = State {
+            mode: Mode::Effect,
+            effect_name: "breathe".into(),
+            rgb: Rgb { r: 255, g: 0, b: 0 },
+            speed: 128,
+            ..State::default()
+        };
         let dim = render_frame(&s, 0);
         let bright = render_frame(&s, 32);
-        assert_ne!(dim[0], bright[0], "breathe should vary brightness of the pixel");
+        assert_ne!(
+            dim[0], bright[0],
+            "breathe should vary brightness of the pixel"
+        );
     }
 
     #[test]
     fn unknown_effect_falls_back_to_solid() {
-        let s = State { mode: Mode::Effect, effect_name: "bogus".into(),
-                        rgb: Rgb { r: 1, g: 2, b: 3 }, ..State::default() };
+        let s = State {
+            mode: Mode::Effect,
+            effect_name: "bogus".into(),
+            rgb: Rgb { r: 1, g: 2, b: 3 },
+            ..State::default()
+        };
         let frame = render_frame(&s, 5);
         assert!(frame.iter().all(|&p| p == Rgb { r: 1, g: 2, b: 3 }));
     }

@@ -4,12 +4,15 @@ mod display;
 mod effects;
 mod engine;
 mod geometry;
+#[cfg(feature = "hardware")]
+mod hardware;
+mod homekit;
+mod mqtt;
 mod persist;
+mod settings;
 mod state;
 mod web;
 mod ws;
-#[cfg(feature = "hardware")]
-mod hardware;
 
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -34,7 +37,9 @@ fn select_display() -> (Box<dyn display::Display>, &'static str) {
 
 /// Resolve on SIGINT (ctrl-c) or SIGTERM (systemctl stop).
 async fn shutdown_signal() {
-    let ctrl_c = async { let _ = tokio::signal::ctrl_c().await; };
+    let ctrl_c = async {
+        let _ = tokio::signal::ctrl_c().await;
+    };
     #[cfg(unix)]
     let term = async {
         use tokio::signal::unix::{signal, SignalKind};
@@ -76,8 +81,7 @@ async fn main() -> anyhow::Result<()> {
         let mut rx = handle.snapshots.clone();
         let path = state_path.clone();
         tokio::spawn(async move {
-            let mut persister =
-                persist::Persister::new(path, Duration::from_millis(1000), initial);
+            let mut persister = persist::Persister::new(path, Duration::from_millis(1000), initial);
             let mut flush_tick = tokio::time::interval(Duration::from_millis(1000));
             loop {
                 tokio::select! {
@@ -114,11 +118,29 @@ async fn main() -> anyhow::Result<()> {
                 .collect()
         })
         .unwrap_or_default();
+    let system_paths = settings::SystemPaths::from_env();
+    let settings_store = settings::SettingsStore::new(system_paths.settings.clone());
+    let homekit_status = homekit::HomeKitStatus::new();
+    let mqtt_task = tokio::spawn(mqtt::run(
+        handle.clone(),
+        settings_store.clone(),
+        shutdown_rx.clone(),
+    ));
+    let homekit_task = tokio::spawn(homekit::run(
+        handle.clone(),
+        settings_store.clone(),
+        system_paths.homekit_storage.clone(),
+        homekit_status.clone(),
+        shutdown_rx.clone(),
+    ));
     let app = api::router(api::AppState {
         engine: handle,
         security: api::SecurityConfig { extra_hosts },
         shutdown: shutdown_rx,
         backend,
+        settings: settings_store,
+        system_paths,
+        homekit_status,
     });
     // Bind all interfaces by default (the Pi may be multi-homed); the Host/Origin
     // check — not the bind address — is what enforces the LAN-only policy.
@@ -138,6 +160,8 @@ async fn main() -> anyhow::Result<()> {
     // `app` (holding the only command senders) is dropped when serve returns, so
     // the engine loop ends and clears the panel; the persister then sees the
     // snapshot channel close and flushes.
+    let _ = mqtt_task.await;
+    let _ = homekit_task.await;
     let _ = engine_task.await;
     let _ = persist_task.await;
     tracing::info!("stopped cleanly");

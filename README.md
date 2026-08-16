@@ -51,7 +51,7 @@ cargo run           # runs with the mock display; override the bind for local us
 MLP_BIND=127.0.0.1:8080 MLP_HOST=127.0.0.1 cargo run
 ```
 
-## Build for the Pi (ARMv6) — build *on* the Pi
+## Build for the Pi (ARMv6) — trusted path: build *on* the Pi
 
 The Pi Zero W is **ARMv6** (ARM1176). **Cross-compiling from a Debian-based host
 does not work**: Debian's armhf port is ARMv7-baseline (libc/crt/libgcc), so such
@@ -61,6 +61,66 @@ SSH — no `scp` needed, since minimal images often lack it).
 
 > First build is slow — ~2 h cold on a single-core 512 MB Pi Zero. Incremental
 > rebuilds are minutes (LTO is disabled and the build tree is kept on the Pi).
+
+### Experimental Docker ARMv6 build
+
+There are also experimental build-here/deploy-there paths.
+
+For fastest builds, use the true cross-compiler path. It compiles Rust/C code on
+this machine's CPU, but links and runs bindgen against a sysroot copied from the
+actual Pi:
+
+```bash
+./deploy/build-cross-armv6.sh --sync-sysroot
+```
+
+Later builds can omit `--sync-sysroot` unless the Pi OS packages change:
+
+```bash
+./deploy/build-cross-armv6.sh
+```
+
+The artifact is written to `dist/pi-armv6-cross/moodlightpi`.
+
+To build locally and deploy that cross-built artifact to the Pi:
+
+```bash
+./deploy/deploy-cross-armv6.sh
+```
+
+Use `./deploy/deploy-cross-armv6.sh --sync-sysroot` after Pi OS package
+upgrades.
+
+There is also a Docker/QEMU path. It is more conservative than true
+cross-compilation because it builds inside an emulated ARMv6 container, but it is
+slower:
+
+```bash
+./deploy/build-docker-armv6.sh
+```
+
+It creates/reuses a local ARMv6 builder image, runs the build inside a
+`linux/arm/v6` Raspberry Pi-compatible container, and writes
+`dist/pi-armv6/moodlightpi`. This is deliberately separate from
+`deploy/deploy.sh` until the produced binary has been verified on the real Pi.
+It may be faster than the first native Pi build on a Mac, but it still needs
+QEMU emulation, Docker Desktop, Rust, clang, and the `rs_ws281x` C build stack
+inside the container.
+
+The current Pi is DietPi / Debian Trixie. The default Docker builder uses the
+available `balenalib/raspberry-pi-debian:bookworm-build` ARMv6 image because the
+equivalent Balena Trixie ARMv6 tag is not currently published. That is usually a
+conservative compatibility direction (older glibc-built binary on newer
+Trixie), but keep the native Pi build as the trusted deploy path until the
+Docker artifact has been tested on-device. If a Trixie ARMv6 base becomes
+available, override it with:
+
+```bash
+MLP_ARMV6_DOCKER_IMAGE=<armv6-trixie-image> ./deploy/build-docker-armv6.sh
+```
+
+Do **not** replace this with a generic Debian `armhf` cross-build; that target is
+ARMv7-baseline and is not safe for the original Pi Zero W.
 
 ## Deploy
 

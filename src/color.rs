@@ -36,7 +36,11 @@ fn scale(channel: u8, brightness: u8) -> u8 {
 /// Pipeline order (fixed): gamma -> brightness -> GRB byte order.
 /// Returns the three colour bytes in the WS2812 wire order [G, R, B].
 pub fn to_grb(rgb: Rgb, brightness: u8) -> [u8; 3] {
-    [scale(rgb.g, brightness), scale(rgb.r, brightness), scale(rgb.b, brightness)]
+    [
+        scale(rgb.g, brightness),
+        scale(rgb.r, brightness),
+        scale(rgb.b, brightness),
+    ]
 }
 
 #[cfg(test)]
@@ -53,7 +57,9 @@ mod tests {
     fn gamma_is_monotonic_and_dims_midtones() {
         // gamma pulls mid values down (perceptual correction)
         assert!(gamma_correct(128) < 128);
-        for v in 0u8..255 { assert!(gamma_correct(v) <= gamma_correct(v + 1)); }
+        for v in 0u8..255 {
+            assert!(gamma_correct(v) <= gamma_correct(v + 1));
+        }
     }
 
     #[test]
@@ -70,6 +76,16 @@ mod tests {
 
     #[test]
     fn brightness_zero_is_black() {
-        assert_eq!(to_grb(Rgb { r: 255, g: 255, b: 255 }, 0), [0, 0, 0]);
+        assert_eq!(
+            to_grb(
+                Rgb {
+                    r: 255,
+                    g: 255,
+                    b: 255
+                },
+                0
+            ),
+            [0, 0, 0]
+        );
     }
 }

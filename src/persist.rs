@@ -108,10 +108,16 @@ mod tests {
     #[test]
     fn save_then_load_roundtrips() {
         let p = tmp_path("roundtrip");
-        let s = State { brightness: 123, ..State::default() };
+        let s = State {
+            brightness: 123,
+            ..State::default()
+        };
         save_atomic(&p, &s).unwrap();
         assert_eq!(load(&p), s);
-        assert!(!p.with_extension("json.tmp").exists(), "temp file must be renamed away");
+        assert!(
+            !p.with_extension("json.tmp").exists(),
+            "temp file must be renamed away"
+        );
         let _ = std::fs::remove_file(&p);
     }
 

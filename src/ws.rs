@@ -29,7 +29,11 @@ pub async fn ws_handler(
 async fn client_loop(mut socket: WebSocket, st: AppState) {
     // 1. Send the current frame immediately (solid mode is otherwise idle).
     let current = crate::effects::render_frame(&st.engine.current(), 0);
-    if socket.send(Message::Text(frame_to_json(&current))).await.is_err() {
+    if socket
+        .send(Message::Text(frame_to_json(&current)))
+        .await
+        .is_err()
+    {
         return;
     }
     // 2. Stream frames; drop this client on lag (never back-pressure the engine).

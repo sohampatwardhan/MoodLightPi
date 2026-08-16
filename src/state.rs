@@ -28,7 +28,11 @@ impl Default for State {
         Self {
             power: true,
             mode: Mode::Solid,
-            rgb: Rgb { r: 255, g: 147, b: 41 }, // warm white
+            rgb: Rgb {
+                r: 255,
+                g: 147,
+                b: 41,
+            }, // warm white
             brightness: SAFE_DEFAULT_BRIGHTNESS,
             effect_name: "rainbow".to_string(),
             speed: 128,
@@ -61,7 +65,10 @@ mod tests {
 
     #[test]
     fn roundtrips_through_json() {
-        let s = State { brightness: 200, ..State::default() };
+        let s = State {
+            brightness: 200,
+            ..State::default()
+        };
         let json = serde_json::to_string(&s).unwrap();
         let back: State = serde_json::from_str(&json).unwrap();
         assert_eq!(s, back);
@@ -69,9 +76,16 @@ mod tests {
 
     #[test]
     fn effective_brightness_is_capped() {
-        let s = State { brightness: 255, ..State::default() };
+        let s = State {
+            brightness: 255,
+            ..State::default()
+        };
         assert_eq!(s.effective_brightness(), MAX_BRIGHTNESS);
-        let off = State { power: false, brightness: 255, ..State::default() };
+        let off = State {
+            power: false,
+            brightness: 255,
+            ..State::default()
+        };
         assert_eq!(off.effective_brightness(), 0);
     }
 }
