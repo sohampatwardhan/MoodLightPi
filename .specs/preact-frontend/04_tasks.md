@@ -71,7 +71,7 @@ flowchart TD
   class n_3_1 done
   class n_3_2 done
   class n_3_3 done
-  class n_4_1 pending
+  class n_4_1 done
   class n_5_1 pending
   class n_5_2 pending
   class n_6_1 pending
@@ -323,13 +323,13 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
 
 ### Stage 4
 
-- [ ] 4.1 **Wire App, build the bundle, and commit the bundle dir**
-  - `frontend/src/app.tsx`: mount header + router switching dashboard/settings routes
+- [x] 4.1 **Wire App, build the bundle, and commit the bundle dir**
+  - [`frontend/src/app.tsx`](../../frontend/src/app.tsx): mount header + router switching dashboard/settings routes
     (`/`, `/settings`, `/identity`, `/wifi`, `/mqtt`, `/homekit`, `/ssh`, `/device` + `/settings/*`
     aliases), do the single `getBootstrap()` initial load seeding the store, then open the frame
     WS and start health (15 s) + state (≥5 s) polling. Run `npm run build`; commit the generated
     [`web-dist/`](../../web-dist) (`index.html` + `assets/*`). Confirm the gzipped JS+CSS ≤ 50 KB.
-  - **Files:** `frontend/src/app.tsx`, [`web-dist/`](../../web-dist)
+  - **Files:** [`frontend/src/app.tsx`](../../frontend/src/app.tsx), [`web-dist/`](../../web-dist)
   - **Depends on:** 2.3, 3.1, 3.2
   - **Interfaces:** Consumes: all components (3.1, 3.2), `styles.css` (2.3), `getBootstrap`/`connectFrames`/router/store (2.1, 2.2); Produces: committed [`web-dist/index.html`](../../web-dist/index.html) + `web-dist/assets/*` embeddable by `rust-embed`.
   - **Documentation:** TSDoc on `app.tsx` (route table, bootstrap-then-subscribe load order).

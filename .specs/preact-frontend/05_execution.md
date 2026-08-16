@@ -35,7 +35,6 @@ source of truth for progress; this ledger records outcomes, verification, and de
 ```mermaid
 kanban
   pending[Pending]
-    t_kanban_4_1[⚪ 4.1: **Wire App, build the bundle, and commit the bundle dir**]
     t_kanban_5_1[⚪ 5.1: **Integrate embed web-dist, fallback, bootstrap route**]
     t_kanban_5_2[⚪ 5.2: **Stale-bundle guard and deploy wiring**]
     t_kanban_6_1[⚪ 6.1: **Backend tests serve_spa, bootstrap, MQTT**]
@@ -51,6 +50,7 @@ kanban
     t_kanban_3_1[🟢 3.1: **Dashboard components (header, status, preview, controls)**]
     t_kanban_3_2[🟢 3.2: **Settings components, system dialog, and toast**]
     t_kanban_3_3[🟢 3.3: **Frontend unit tests (Vitest) for pure helpers**]
+    t_kanban_4_1[🟢 4.1: **Wire App, build the bundle, and commit the bundle dir**]
 ```
 ### Run Intervals
 | Run ID | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
@@ -70,6 +70,7 @@ kanban
 | run-20260816T175316Z | 3 | 3.1 | 1 | 2026-08-16T19:02:17Z | 2026-08-16T19:04:33Z | 136 | verified |
 | run-20260816T175316Z | 3 | 3.2 | 1 | 2026-08-16T19:04:33Z | 2026-08-16T19:07:11Z | 158 | verified |
 | run-20260816T175316Z | 3 | 3.3 | 1 | 2026-08-16T19:07:11Z | 2026-08-16T19:08:49Z | 98 | verified |
+| run-20260816T175316Z | 4 | 4.1 | 1 | 2026-08-16T19:08:49Z | 2026-08-16T19:10:18Z | 89 | verified |
 
 ## Task Results
 
@@ -157,6 +158,13 @@ clean; live behavior in 7.1. Satisfies R4–R9 (UI), R16.1, R16.2.
 with server `error`, status-text fallback, 2xx parse — `fetch` stubbed). `npm test`: **9 passed**;
 `tsc --noEmit` clean. Satisfies R1.2, R2.1, R16.2.
 
+### 4.1 — App wiring + build → web-dist — verified
+[`frontend/src/app.tsx`](../../frontend/src/app.tsx) (`App`/`Shell`): store provider, header, route-switched dashboard vs
+settings, system dialog + toast; single `getBootstrap()` initial load seeding light+effects, then
+health (15 s) + state (5 s) polling; `main.tsx` renders `<App/>`. `npm run build` regenerated the
+committed [`web-dist/`](../../web-dist) (29 modules) — **JS 11.23 kB gz + CSS 2.20 kB gz ≈ 13.4 kB, under the 50 kB
+budget (R15.1)**. `tsc --noEmit` clean. Satisfies R10.1–R10.3, R11.3, R3.3, R15.1.
+
 ### Execution Gantt
 
 ```mermaid
@@ -176,4 +184,6 @@ gantt
     3.1 attempt 1 (verified, 136s) :done, b_3_1_attempt1, 2026-08-16T19:02:17, 2026-08-16T19:04:33
     3.2 attempt 1 (verified, 158s) :done, b_3_2_attempt1, 2026-08-16T19:04:33, 2026-08-16T19:07:11
     3.3 attempt 1 (verified, 98s) :done, b_3_3_attempt1, 2026-08-16T19:07:11, 2026-08-16T19:08:49
+    section 4
+    4.1 attempt 1 (verified, 89s) :done, b_4_1_attempt1, 2026-08-16T19:08:49, 2026-08-16T19:10:18
 ```
