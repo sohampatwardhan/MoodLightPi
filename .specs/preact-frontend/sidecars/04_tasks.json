@@ -1,27 +1,52 @@
 {
   "concurrency": {
-    "active_stage": 1,
+    "active_stage": 2,
     "blocked": {},
-    "parallel_candidates": [],
+    "parallel_candidates": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
     "ready": [
-      "1.2"
+      "2.1",
+      "2.2",
+      "2.3",
+      "2.4",
+      "2.5"
     ],
     "serial_candidates": [
-      "1.2"
+      "2.4",
+      "2.5"
     ],
     "waves": [
       {
-        "mode": "serial",
+        "mode": "parallel",
         "tasks": [
-          "1.2"
+          "2.1",
+          "2.2",
+          "2.3"
         ],
         "wave": 1
+      },
+      {
+        "mode": "serial",
+        "tasks": [
+          "2.4"
+        ],
+        "wave": 2
+      },
+      {
+        "mode": "serial",
+        "tasks": [
+          "2.5"
+        ],
+        "wave": 3
       }
     ]
   },
   "generated_from": {
     "file": "04_tasks.md",
-    "sha256": "c5a7688a2bfd2e402a10054c6c75069235285d2811238d8bb04c9ff21be2ea48"
+    "sha256": "5e80d4d778a384b9523a0d3af85dccb04f42bd93fdc8840e101e37f7ef2a7da9"
   },
   "requirement_count": 62,
   "schema_version": 1,
@@ -90,7 +115,7 @@
     },
     {
       "capability_tier": "balanced",
-      "checked": false,
+      "checked": true,
       "delegation": "sequential subagent",
       "dependency_delivery": "none",
       "dependency_resolution": "none",

@@ -458,11 +458,11 @@ async fn post_mqtt(
     Json(body): Json<MqttSettingsSave>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<serde_json::Value>)> {
     check(&headers, &st.security).map_err(|s| json_error(s, "request rejected"))?;
-    let existing_password = st.settings.load().mqtt.password;
+    let existing = st.settings.load().mqtt;
     let password = if body.clear_password || body.username.trim().is_empty() {
         None
     } else if body.password.is_empty() {
-        existing_password
+        existing.password.clone()
     } else {
         Some(body.password)
     };
@@ -474,6 +474,11 @@ async fn post_mqtt(
         password,
         subscribe_topic: body.subscribe_topic.trim().to_string(),
         publish_topic: body.publish_topic.trim().to_string(),
+        // Availability + discovery config are surfaced to the UI in task 2.5; until then
+        // preserve whatever is already stored (defaults on first run).
+        availability_topic: existing.availability_topic.clone(),
+        discovery_enabled: existing.discovery_enabled,
+        discovery_prefix: existing.discovery_prefix.clone(),
     };
     validate_mqtt_settings(&next)
         .map_err(|e| json_error(StatusCode::BAD_REQUEST, e.to_string()))?;

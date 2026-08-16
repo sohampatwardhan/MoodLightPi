@@ -70,6 +70,19 @@ impl Default for HomeKitSettings {
     }
 }
 
+/// Availability topic the device publishes `online`/`offline` to (Home Assistant LWT).
+fn default_availability_topic() -> String {
+    "moodlightpi/availability".into()
+}
+/// Home Assistant MQTT discovery is on by default so the light auto-registers in HA.
+fn default_discovery_enabled() -> bool {
+    true
+}
+/// Home Assistant's default MQTT discovery topic prefix.
+fn default_discovery_prefix() -> String {
+    "homeassistant".into()
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MqttSettings {
     pub enabled: bool,
@@ -79,6 +92,17 @@ pub struct MqttSettings {
     pub password: Option<String>,
     pub subscribe_topic: String,
     pub publish_topic: String,
+    /// Topic the device publishes its Home Assistant availability (`online`/`offline`) to.
+    /// `#[serde(default = ...)]` keeps pre-existing `settings.json` (written before these
+    /// fields existed) loadable, filling the HA default rather than an empty string.
+    #[serde(default = "default_availability_topic")]
+    pub availability_topic: String,
+    /// Whether to publish a Home Assistant MQTT discovery config so HA auto-creates the entity.
+    #[serde(default = "default_discovery_enabled")]
+    pub discovery_enabled: bool,
+    /// Home Assistant discovery topic prefix (`<prefix>/light/<object_id>/config`).
+    #[serde(default = "default_discovery_prefix")]
+    pub discovery_prefix: String,
 }
 
 impl Default for MqttSettings {
@@ -91,6 +115,9 @@ impl Default for MqttSettings {
             password: None,
             subscribe_topic: "moodlightpi/set".into(),
             publish_topic: "moodlightpi/state".into(),
+            availability_topic: default_availability_topic(),
+            discovery_enabled: default_discovery_enabled(),
+            discovery_prefix: default_discovery_prefix(),
         }
     }
 }
@@ -336,12 +363,24 @@ pub fn validate_mqtt_settings(settings: &MqttSettings) -> anyhow::Result<()> {
                 "at least one MQTT publish or subscribe topic is required"
             ));
         }
+        if settings.availability_topic.trim().is_empty() {
+            return Err(anyhow::anyhow!(
+                "availability topic is required when MQTT is enabled"
+            ));
+        }
+        if settings.discovery_enabled && settings.discovery_prefix.trim().is_empty() {
+            return Err(anyhow::anyhow!(
+                "discovery prefix is required when Home Assistant discovery is enabled"
+            ));
+        }
     }
     validate_mqtt_text("broker URL", &settings.broker_url)?;
     validate_mqtt_text("client ID", &settings.client_id)?;
     validate_mqtt_text("username", &settings.username)?;
     validate_mqtt_topic("subscribe topic", &settings.subscribe_topic)?;
     validate_mqtt_topic("publish topic", &settings.publish_topic)?;
+    validate_mqtt_topic("availability topic", &settings.availability_topic)?;
+    validate_mqtt_topic("discovery prefix", &settings.discovery_prefix)?;
     if let Some(password) = &settings.password {
         validate_mqtt_text("password", password)?;
     }
@@ -639,6 +678,41 @@ mod tests {
         assert!(validate_mqtt_settings(&settings).is_ok());
         settings.client_id.clear();
         assert!(validate_mqtt_settings(&settings).is_err());
+    }
+
+    #[test]
+    fn mqtt_availability_and_discovery_defaults() {
+        let d = MqttSettings::default();
+        assert_eq!(d.availability_topic, "moodlightpi/availability");
+        assert!(d.discovery_enabled);
+        assert_eq!(d.discovery_prefix, "homeassistant");
+    }
+
+    #[test]
+    fn old_mqtt_settings_json_loads_with_ha_defaults() {
+        // A settings.json written before the HA fields existed must still deserialize,
+        // filling the Home Assistant defaults rather than empty strings.
+        let json = r#"{"enabled":true,"broker_url":"mqtt://b:1883","client_id":"x",
+            "username":"","password":null,"subscribe_topic":"moodlightpi/set",
+            "publish_topic":"moodlightpi/state"}"#;
+        let mqtt: MqttSettings = serde_json::from_str(json).unwrap();
+        assert_eq!(mqtt.availability_topic, "moodlightpi/availability");
+        assert!(mqtt.discovery_enabled);
+        assert_eq!(mqtt.discovery_prefix, "homeassistant");
+    }
+
+    #[test]
+    fn rejects_empty_availability_and_discovery_prefix_when_used() {
+        let mut s = MqttSettings {
+            enabled: true,
+            ..Default::default()
+        };
+        s.availability_topic.clear();
+        assert!(validate_mqtt_settings(&s).is_err());
+        s.availability_topic = "moodlightpi/availability".into();
+        s.discovery_enabled = true;
+        s.discovery_prefix.clear();
+        assert!(validate_mqtt_settings(&s).is_err());
     }
 
     #[test]

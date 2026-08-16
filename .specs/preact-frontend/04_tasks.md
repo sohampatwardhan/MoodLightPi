@@ -62,7 +62,7 @@ flowchart TD
   n_5_2 --> n_7_1
   n_6_1 --> n_7_1
   class n_1_1 done
-  class n_1_2 pending
+  class n_1_2 done
   class n_2_1 pending
   class n_2_2 pending
   class n_2_3 pending
@@ -134,7 +134,7 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - **Delegation:** controller
   - _Requirements: 13.1, 15.1_
 
-- [ ] 1.2 **Extend `MqttSettings` with availability + discovery fields**
+- [x] 1.2 **Extend `MqttSettings` with availability + discovery fields**
   - In [`src/settings.rs`](../../src/settings.rs) add `availability_topic: String` (default
     `moodlightpi/availability`), `discovery_enabled: bool` (default `true`), `discovery_prefix:
     String` (default `homeassistant`), each with a serde default so existing `settings.json`

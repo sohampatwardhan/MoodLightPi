@@ -35,7 +35,6 @@ source of truth for progress; this ledger records outcomes, verification, and de
 ```mermaid
 kanban
   pending[Pending]
-    t_kanban_1_2[⚪ 1.2: **Extend MqttSettings with availability + discovery fields**]
     t_kanban_2_1[⚪ 2.1: **TypeScript types and the typed same-origin API client**]
     t_kanban_2_2[⚪ 2.2: **Frame WebSocket client, client router, and app store**]
     t_kanban_2_3[⚪ 2.3: **Port the OctoCam-style CSS into the Vite project**]
@@ -51,6 +50,7 @@ kanban
     t_kanban_7_1[⚪ 7.1: Checkpoint — Live verification (device + HA)]
   done[Done]
     t_kanban_1_1[🟢 1.1: **Scaffold the Vite Preact + TypeScript frontend project**]
+    t_kanban_1_2[🟢 1.2: **Extend MqttSettings with availability + discovery fields**]
 ```
 ### Run Intervals
 | Run ID | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
@@ -61,6 +61,7 @@ kanban
 | Run ID | Stage/Wave | Task | Attempt | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
 |---|---|---|---:|---|---|---:|---|
 | run-20260816T175316Z | 1 | 1.1 | 1 | 2026-08-16T18:01:04Z | 2026-08-16T18:45:02Z | 2638 | verified |
+| run-20260816T175316Z | 1 | 1.2 | 1 | 2026-08-16T18:48:17Z | 2026-08-16T18:50:07Z | 110 | verified |
 
 ## Task Results
 
@@ -75,6 +76,16 @@ emits [`web-dist/index.html`](../../web-dist/index.html) + `web-dist/assets/inde
 reviewed and accepted (reports under the repo dependency-audit evidence directory). Satisfies
 R13.1, R15.1.
 
+### 1.2 — MqttSettings availability + discovery fields — verified
+Added `availability_topic` (default `moodlightpi/availability`), `discovery_enabled` (default
+`true`), and `discovery_prefix` (default `homeassistant`) to `MqttSettings` in
+[`src/settings.rs`](../../src/settings.rs), each with a `#[serde(default = ...)]` so pre-existing
+`settings.json` still loads (filling HA defaults). `validate_mqtt_settings` now requires a non-empty
+availability topic when enabled and a non-empty discovery prefix when discovery is enabled, and
+validates both as MQTT topics. Made the `post_mqtt` constructor in [`src/api.rs`](../../src/api.rs)
+preserve the new fields (task 2.5 wires them to the request body). `cargo test`: **60 passed**
+(+3 new: defaults, backward-compat load, empty-field rejection). Satisfies R6.4, R6.5, R6.6.
+
 ### Execution Gantt
 
 ```mermaid
@@ -83,4 +94,5 @@ gantt
     axisFormat %m-%d %H:%M
     section 1
     1.1 attempt 1 (verified, 2638s) :done, b_1_1_attempt1, 2026-08-16T18:01:04, 2026-08-16T18:45:02
+    1.2 attempt 1 (verified, 110s) :done, b_1_2_attempt1, 2026-08-16T18:48:17, 2026-08-16T18:50:07
 ```
