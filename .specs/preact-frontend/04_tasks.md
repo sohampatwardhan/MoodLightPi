@@ -195,13 +195,13 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - _Requirements: 2.1, 2.3, 3.3, 10.1, 10.3, 16.1_
 
 - [x] 2.3 **Port the OctoCam-style CSS into the Vite project**
-  - Recreate the existing UI's look ([`web/style.css`](../../web/style.css)) as
+  - Recreate the existing UI's look (`web/style.css`) as
     [`frontend/src/styles.css`](../../frontend/src/styles.css): `:root` design tokens (dark theme), dashboard grid + settings
     sidebar/workspace layout, custom range sliders, color input, toggle switches, status pills,
     cards, modal dialog, toast; responsive media queries. Imported once from `main.tsx`.
   - **Files:** [`frontend/src/styles.css`](../../frontend/src/styles.css)
   - **Depends on:** 1.1
-  - **Interfaces:** Consumes: [`web/style.css`](../../web/style.css) as the visual reference (OctoCam layout, parity); Produces: `styles.css` with the class names the components in 3.1/3.2 will use.
+  - **Interfaces:** Consumes: `web/style.css` as the visual reference (OctoCam layout, parity); Produces: `styles.css` with the class names the components in 3.1/3.2 will use.
   - **Documentation:** top-of-file comment noting the token system and that it preserves the prior OctoCam layout; `no public surface` otherwise.
   - **Dependency resolution:** none
   - **Dependency delivery:** none
@@ -352,8 +352,8 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
     `/assets/*`; unknown file-like path → 404; other paths → `index.html` `no-cache`). [`src/api.rs`](../../src/api.rs): remove the enumerated
     `get(serve_index)` routes and the `/style.css`,`/app.js` routes; add `.route("/api/bootstrap",
     get(get_bootstrap))` and `.fallback(crate::web::serve_spa)`. Delete the legacy
-    [`web/`](../../web/) source files.
-  - **Files:** [`src/web.rs`](../../src/web.rs), [`src/api.rs`](../../src/api.rs), [`web/index.html`](../../web/index.html), [`web/app.js`](../../web/app.js), [`web/style.css`](../../web/style.css)
+    `web/` source files.
+  - **Files:** [`src/web.rs`](../../src/web.rs), [`src/api.rs`](../../src/api.rs), `web/index.html`, `web/app.js`, `web/style.css`
   - **Depends on:** 4.1, 2.5
   - **Interfaces:** Consumes: committed [`web-dist/`](../../web-dist) (4.1), `get_bootstrap` + router (2.5), design §"Backend — asset serving"/"router"; Produces: `serve_spa` handler, a `.fallback`-terminated router with `/api/bootstrap`, and removal of the enumerated SPA/asset routes and the legacy source files.
   - **Documentation:** doc comment on `serve_spa` stating the three-way routing contract and cache policy; note in `router()` why the fallback cannot shadow `/api`/`/ws`.

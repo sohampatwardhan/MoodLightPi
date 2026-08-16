@@ -21,7 +21,7 @@
   },
   "generated_from": {
     "file": "04_tasks.md",
-    "sha256": "09f7246513aa81c69b4153800fd35143b3000f421fe5ddc5911f6e106b8d2cc2"
+    "sha256": "b80ae5b5bfff2dad29d8b5e2ea11cd0d0467f6bb63586e5466f0d3047b6fe274"
   },
   "requirement_count": 62,
   "schema_version": 1,
@@ -190,7 +190,7 @@
         "frontend/src/styles.css"
       ],
       "id": "2.3",
-      "interfaces": "Consumes: [`web/style.css`](../../web/style.css) as the visual reference (OctoCam layout, parity); Produces: `styles.css` with the class names the components in 3.1/3.2 will use.",
+      "interfaces": "Consumes: `web/style.css` as the visual reference (OctoCam layout, parity); Produces: `styles.css` with the class names the components in 3.1/3.2 will use.",
       "optional": false,
       "reasoning_level": "medium",
       "requirements": [

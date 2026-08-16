@@ -100,7 +100,7 @@ unchanged; only the embedded directory's origin (Vite output) changes.
 
 ### Backend — asset serving ([`src/web.rs`](../../src/web.rs))
 
-`rust-embed` folder changes from [`web/`](../../web/) to the committed Vite output:
+`rust-embed` folder changes from `web/` to the committed Vite output:
 
 ```rust
 #[derive(RustEmbed)]
@@ -507,7 +507,7 @@ endpoint (API completeness, negligible cost).
 
 ## Open Decisions (resolved)
 
-- **Bundle location:** a new committed [`web-dist/`](../../web-dist) (clearly generated), replacing [`web/`](../../web/); the three
+- **Bundle location:** a new committed [`web-dist/`](../../web-dist) (clearly generated), replacing `web/`; the three
   legacy files are deleted. `rust-embed` folder becomes [`web-dist/`](../../web-dist).
 - **Bootstrap shape:** aggregates state+seq+effects+all settings; individual endpoints are kept.
 - **Unused routes:** `/api/power` and `/api/settings/homekit/pairing-code` are kept; only the

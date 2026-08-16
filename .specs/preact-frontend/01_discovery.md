@@ -7,8 +7,8 @@
 ## Problem and Outcome
 
 MoodLightPi's web UI is a hand-rolled vanilla-JavaScript single-page app —
-[`web/index.html`](../../web/index.html), [`web/app.js`](../../web/app.js), and
-[`web/style.css`](../../web/style.css) — embedded into the Rust binary at compile time via
+`web/index.html`, `web/app.js`, and
+`web/style.css` — embedded into the Rust binary at compile time via
 `rust-embed` ([`src/web.rs`](../../src/web.rs)). It hand-writes DOM manipulation, a bespoke
 client-side router, manual `fetch` plumbing, and imperative state syncing across ~1,000 lines of
 untyped JS. Adding or changing a control means editing three parallel files with no component
@@ -203,7 +203,7 @@ Source IR: [`diagrams/architecture-outline.json`](diagrams/architecture-outline.
 
 Deferred to design/requirements, not blocking discovery approval:
 
-1. **Committed bundle location** — reuse [`web/`](../../web/) (replacing the three files) vs a new [`web-dist/`](../../web-dist)
+1. **Committed bundle location** — reuse `web/` (replacing the three files) vs a new [`web-dist/`](../../web-dist)
    directory, and exactly how the staleness guard is implemented.
 2. **`/api/bootstrap` shape** — which fields to aggregate, and whether to keep the individual
    `GET` endpoints for parity/debugging (lean: keep them).
