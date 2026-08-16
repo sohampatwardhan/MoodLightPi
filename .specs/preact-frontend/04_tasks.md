@@ -74,7 +74,7 @@ flowchart TD
   class n_4_1 done
   class n_5_1 done
   class n_5_2 done
-  class n_6_1 pending
+  class n_6_1 done
   class n_7_1 pending
 ```
 Implementation plan for [`03_design.md`](03_design.md), tracing to [`02_requirements.md`](02_requirements.md)
@@ -388,7 +388,7 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
 
 ### Stage 6
 
-- [ ] 6.1 **Backend tests: serve_spa, bootstrap, MQTT**
+- [x] 6.1 **Backend tests: serve_spa, bootstrap, MQTT**
   - Update the `rust-embed` test to assert `index.html` and an `assets/`-prefixed file embed. Add
     `serve_spa` tests (client route → index; missing `*.js` → 404; an unknown `/api/*` path → 404
     per AUDIT-2; existing `/api/*` and `/ws` routes unshadowed).

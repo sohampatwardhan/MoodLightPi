@@ -1,19 +1,19 @@
 {
   "concurrency": {
-    "active_stage": 6,
+    "active_stage": 7,
     "blocked": {},
     "parallel_candidates": [],
     "ready": [
-      "6.1"
+      "7.1"
     ],
     "serial_candidates": [
-      "6.1"
+      "7.1"
     ],
     "waves": [
       {
         "mode": "serial",
         "tasks": [
-          "6.1"
+          "7.1"
         ],
         "wave": 1
       }
@@ -21,7 +21,7 @@
   },
   "generated_from": {
     "file": "04_tasks.md",
-    "sha256": "b80ae5b5bfff2dad29d8b5e2ea11cd0d0467f6bb63586e5466f0d3047b6fe274"
+    "sha256": "5d3e59e2fe948ed0f8ab56da2b85c95c56d426384eb4aa2cf854a9c27a0fe592"
   },
   "requirement_count": 62,
   "schema_version": 1,
@@ -498,7 +498,7 @@
     },
     {
       "capability_tier": "balanced",
-      "checked": false,
+      "checked": true,
       "delegation": "sequential subagent",
       "dependency_delivery": "none",
       "dependency_resolution": "none",

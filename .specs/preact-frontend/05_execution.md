@@ -35,7 +35,6 @@ source of truth for progress; this ledger records outcomes, verification, and de
 ```mermaid
 kanban
   pending[Pending]
-    t_kanban_6_1[⚪ 6.1: **Backend tests serve_spa, bootstrap, MQTT**]
     t_kanban_7_1[⚪ 7.1: Checkpoint — Live verification (device + HA)]
   done[Done]
     t_kanban_1_1[🟢 1.1: **Scaffold the Vite Preact + TypeScript frontend project**]
@@ -51,6 +50,7 @@ kanban
     t_kanban_4_1[🟢 4.1: **Wire App, build the bundle, and commit the bundle dir**]
     t_kanban_5_1[🟢 5.1: **Integrate embed web-dist, fallback, bootstrap route**]
     t_kanban_5_2[🟢 5.2: **Stale-bundle guard and deploy wiring**]
+    t_kanban_6_1[🟢 6.1: **Backend tests serve_spa, bootstrap, MQTT**]
 ```
 ### Run Intervals
 | Run ID | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
@@ -73,6 +73,7 @@ kanban
 | run-20260816T175316Z | 4 | 4.1 | 1 | 2026-08-16T19:08:49Z | 2026-08-16T19:10:18Z | 89 | verified |
 | run-20260816T175316Z | 5 | 5.1 | 1 | 2026-08-16T19:10:18Z | 2026-08-16T19:13:35Z | 197 | verified |
 | run-20260816T175316Z | 5 | 5.2 | 1 | 2026-08-16T19:13:35Z | 2026-08-16T19:23:54Z | 619 | verified |
+| run-20260816T175316Z | 6 | 6.1 | 1 | 2026-08-16T19:34:39Z | 2026-08-16T19:36:11Z | 92 | verified |
 
 ## Task Results
 
@@ -182,6 +183,15 @@ budget check; skips with a warning if npm is absent. Wired into [`deploy/build.s
 before the source tarball ships. Verified: exit 0 on the fresh bundle (gzip 13439 B), exit 1 on a
 real source-token change, then restored clean. Satisfies R13.1, R13.3, R15.1.
 
+### 6.1 — Backend tests: serve_spa, bootstrap, MQTT — verified
+Added to [`src/api.rs`](../../src/api.rs) and [`src/mqtt.rs`](../../src/mqtt.rs): serve_spa via the
+router (client route→index, `/api/effects` unshadowed, unknown `/api/*`→404 per AUDIT-2, missing
+asset→404); `get_bootstrap` returns state+seq+effects+all settings and its effects equal
+`/api/effects`; bootstrap foreign-Origin→403; unknown system action→400; MQTT HA-JSON command
+parse (`state`/`color` object), retained-`offline` availability will, discovery topic + config
+schema, sanitized object id. Updated the `web.rs` embed test. `cargo test`: **69 passed** (+9).
+Satisfies R9.2, R11.1, R11.2, R12.1–R12.4, R14.2, R17.1–R17.3, R18.1–R18.3.
+
 ### Execution Gantt
 
 ```mermaid
@@ -206,4 +216,6 @@ gantt
     section 5
     5.1 attempt 1 (verified, 197s) :done, b_5_1_attempt1, 2026-08-16T19:10:18, 2026-08-16T19:13:35
     5.2 attempt 1 (verified, 619s) :done, b_5_2_attempt1, 2026-08-16T19:13:35, 2026-08-16T19:23:54
+    section 6
+    6.1 attempt 1 (verified, 92s) :done, b_6_1_attempt1, 2026-08-16T19:34:39, 2026-08-16T19:36:11
 ```

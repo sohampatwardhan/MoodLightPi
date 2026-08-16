@@ -493,4 +493,75 @@ mod tests {
     fn rejects_unknown_effects() {
         assert!(commands_from_payload(br#"{"effect":"sparkleblast"}"#).is_err());
     }
+
+    #[test]
+    fn accepts_home_assistant_json_light_commands() {
+        // HA JSON-schema light: state string + color object + brightness. (R18.3 / AUDIT-1)
+        let commands =
+            commands_from_payload(br#"{"state":"ON","brightness":128,"color":{"r":1,"g":2,"b":3}}"#)
+                .unwrap();
+        assert!(matches!(commands[0], Command::SetPower(true)));
+        assert!(commands
+            .iter()
+            .any(|c| matches!(c, Command::SetColor(Rgb { r: 1, g: 2, b: 3 }))));
+        assert!(commands
+            .iter()
+            .any(|c| matches!(c, Command::SetBrightness(128))));
+
+        let off = commands_from_payload(br#"{"state":"OFF"}"#).unwrap();
+        assert!(matches!(off[0], Command::SetPower(false)));
+    }
+
+    fn sample_settings() -> MqttSettings {
+        MqttSettings {
+            enabled: true,
+            client_id: "moodlightpi".into(),
+            subscribe_topic: "moodlightpi/set".into(),
+            publish_topic: "moodlightpi/state".into(),
+            availability_topic: "moodlightpi/availability".into(),
+            discovery_enabled: true,
+            discovery_prefix: "homeassistant".into(),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn availability_will_is_retained_offline_when_enabled() {
+        let will = availability_will(&sample_settings()).expect("enabled → some will");
+        assert_eq!(will.topic, "moodlightpi/availability");
+        assert_eq!(&will.message[..], AVAILABILITY_OFFLINE.as_bytes());
+        assert!(will.retain);
+        // disabled → no will
+        let mut disabled = sample_settings();
+        disabled.enabled = false;
+        assert!(availability_will(&disabled).is_none());
+    }
+
+    #[test]
+    fn discovery_topic_and_config_match_home_assistant_schema() {
+        let settings = sample_settings();
+        assert_eq!(discovery_topic(&settings), "homeassistant/light/moodlightpi/config");
+
+        let identity = IdentitySettings::default();
+        let effects = effect_names();
+        let config = build_discovery_config(&settings, &identity, &effects);
+        assert_eq!(config["schema"], "json");
+        assert_eq!(config["unique_id"], "moodlightpi");
+        assert_eq!(config["command_topic"], "moodlightpi/set");
+        assert_eq!(config["state_topic"], "moodlightpi/state");
+        assert_eq!(config["availability_topic"], "moodlightpi/availability");
+        assert_eq!(config["payload_not_available"], "offline");
+        assert_eq!(config["brightness"], true);
+        assert_eq!(config["supported_color_modes"][0], "rgb");
+        assert_eq!(config["effect"], true);
+        assert!(config["effect_list"].as_array().is_some_and(|e| !e.is_empty()));
+        assert_eq!(config["device"]["identifiers"][0], "moodlightpi");
+    }
+
+    #[test]
+    fn discovery_object_id_is_sanitized() {
+        let mut settings = sample_settings();
+        settings.client_id = "Mood Light/Pi!".into();
+        assert_eq!(discovery_object_id(&settings), "mood_light_pi_");
+    }
 }

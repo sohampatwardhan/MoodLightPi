@@ -901,4 +901,95 @@ mod tests {
             .unwrap();
         assert_eq!(res.status(), StatusCode::BAD_REQUEST);
     }
+
+    async fn get_ok(app: &axum::Router, uri: &str) -> (StatusCode, Vec<u8>) {
+        let res = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .uri(uri)
+                    .header("host", "testhost")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let status = res.status();
+        let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
+        (status, bytes.to_vec())
+    }
+
+    #[tokio::test]
+    async fn spa_fallback_serves_index_for_client_routes() {
+        let app = test_app().await;
+        // Client route → SPA entry document (R12.2).
+        let (status, body) = get_ok(&app, "/mqtt").await;
+        assert_eq!(status, StatusCode::OK);
+        assert!(String::from_utf8_lossy(&body).contains("<div id=\"app\">"));
+        // Root → index too.
+        assert_eq!(get_ok(&app, "/").await.0, StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn spa_fallback_does_not_shadow_api_or_missing_assets() {
+        let app = test_app().await;
+        // An existing API route still routes to its handler (R12.3).
+        assert_eq!(get_ok(&app, "/api/effects").await.0, StatusCode::OK);
+        // An unknown /api path is 404, not the SPA (AUDIT-2).
+        assert_eq!(get_ok(&app, "/api/does-not-exist").await.0, StatusCode::NOT_FOUND);
+        // A missing asset-like path is 404, not the SPA (R12.4).
+        assert_eq!(get_ok(&app, "/assets/missing-abc123.js").await.0, StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn bootstrap_returns_state_effects_and_settings() {
+        let app = test_app().await;
+        let (status, body) = get_ok(&app, "/api/bootstrap").await;
+        assert_eq!(status, StatusCode::OK);
+        let v: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert!(v.get("state").is_some());
+        assert!(v.get("seq").is_some());
+        assert!(v["effects"].as_array().is_some_and(|e| !e.is_empty()));
+        for key in ["identity", "mqtt", "homekit", "wifi", "ssh_keys"] {
+            assert!(v["settings"].get(key).is_some(), "missing settings.{key}");
+        }
+        // Equivalence: bootstrap effects == GET /api/effects.
+        let (_, eff_body) = get_ok(&app, "/api/effects").await;
+        let eff: serde_json::Value = serde_json::from_slice(&eff_body).unwrap();
+        assert_eq!(v["effects"], eff["effects"]);
+    }
+
+    #[tokio::test]
+    async fn bootstrap_rejects_foreign_origin() {
+        let app = test_app().await;
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/bootstrap")
+                    .header("host", "evil.example.com")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::FORBIDDEN);
+    }
+
+    #[tokio::test]
+    async fn unknown_system_action_is_400() {
+        let app = test_app().await;
+        let res = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/system/action")
+                    .header("host", "testhost")
+                    .header("content-type", "application/json")
+                    .body(Body::from(r#"{"action":"explode"}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+    }
 }
