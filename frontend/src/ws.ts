@@ -9,6 +9,16 @@
 
 export type Pixel = [number, number, number];
 
+/** Decode a `/ws` text frame (`{"pixels": [[r,g,b], …]}`) into its pixel list; `[]` if malformed. */
+export function decodeFrame(data: string): Pixel[] {
+  try {
+    const payload = JSON.parse(data) as { pixels?: Pixel[] };
+    return Array.isArray(payload.pixels) ? payload.pixels : [];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Stream LED frames to `onFrame` until the returned disposer is called.
  * @param onFrame invoked with the panel's 32 pixels for every frame received.
@@ -24,12 +34,8 @@ export function connectFrames(onFrame: (pixels: Pixel[]) => void): () => void {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     socket = new WebSocket(`${proto}://${location.host}/ws`);
     socket.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data as string) as { pixels?: Pixel[] };
-        if (payload.pixels) onFrame(payload.pixels);
-      } catch {
-        // ignore malformed frames; the next frame will arrive shortly
-      }
+      const pixels = decodeFrame(event.data as string);
+      if (pixels.length) onFrame(pixels);
     };
     socket.onclose = () => {
       if (!closed) retry = setTimeout(open, 1000);

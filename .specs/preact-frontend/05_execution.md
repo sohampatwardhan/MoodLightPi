@@ -35,9 +35,6 @@ source of truth for progress; this ledger records outcomes, verification, and de
 ```mermaid
 kanban
   pending[Pending]
-    t_kanban_3_1[⚪ 3.1: **Dashboard components (header, status, preview, controls)**]
-    t_kanban_3_2[⚪ 3.2: **Settings components, system dialog, and toast**]
-    t_kanban_3_3[⚪ 3.3: **Frontend unit tests (Vitest) for pure helpers**]
     t_kanban_4_1[⚪ 4.1: **Wire App, build the bundle, and commit the bundle dir**]
     t_kanban_5_1[⚪ 5.1: **Integrate embed web-dist, fallback, bootstrap route**]
     t_kanban_5_2[⚪ 5.2: **Stale-bundle guard and deploy wiring**]
@@ -51,6 +48,9 @@ kanban
     t_kanban_2_3[🟢 2.3: **Port the OctoCam-style CSS into the Vite project**]
     t_kanban_2_4[🟢 2.4: **MQTT availability + HA discovery + payload compat**]
     t_kanban_2_5[🟢 2.5: **API MQTT settings fields + /api/bootstrap aggregate**]
+    t_kanban_3_1[🟢 3.1: **Dashboard components (header, status, preview, controls)**]
+    t_kanban_3_2[🟢 3.2: **Settings components, system dialog, and toast**]
+    t_kanban_3_3[🟢 3.3: **Frontend unit tests (Vitest) for pure helpers**]
 ```
 ### Run Intervals
 | Run ID | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
@@ -67,6 +67,9 @@ kanban
 | run-20260816T175316Z | 2 | 2.3 | 1 | 2026-08-16T18:54:20Z | 2026-08-16T18:55:49Z | 89 | verified |
 | run-20260816T175316Z | 2 | 2.4 | 1 | 2026-08-16T18:55:49Z | 2026-08-16T18:59:08Z | 199 | verified |
 | run-20260816T175316Z | 2 | 2.5 | 1 | 2026-08-16T18:59:08Z | 2026-08-16T19:01:17Z | 129 | verified |
+| run-20260816T175316Z | 3 | 3.1 | 1 | 2026-08-16T19:02:17Z | 2026-08-16T19:04:33Z | 136 | verified |
+| run-20260816T175316Z | 3 | 3.2 | 1 | 2026-08-16T19:04:33Z | 2026-08-16T19:07:11Z | 158 | verified |
+| run-20260816T175316Z | 3 | 3.3 | 1 | 2026-08-16T19:07:11Z | 2026-08-16T19:08:49Z | 98 | verified |
 
 ## Task Results
 
@@ -132,6 +135,28 @@ the design's `BootstrapResponse` names — identical observable contract). Updat
 test body for the new fields. 60 tests pass; bootstrap equivalence + foreign-Origin 403 tests land
 in 6.1. Satisfies R6.1, R6.5, R6.6, R11.1, R11.2, R14.2.
 
+### 3.1 — Dashboard components — verified
+[`frontend/src/lib.ts`](../../frontend/src/lib.ts) (pure helpers: hex↔rgb, brightness↔percent, preset swatches) and
+[`frontend/src/components/`](../../frontend/src/components) — `StatusPill` (active/offline), `Header` (brand, pill, settings link,
+system-power button), `Preview` (8×4 canvas from the frame WS, reversed both axes), `ColorPanel`
+(picker + 5 swatches), `BrightnessPanel` (0-100 %↔0-255, 80 ms debounce), `EffectPanel` (effect
+list from device, speed slider hidden for `solid`, 80 ms debounce), and `Dashboard`. `tsc --noEmit`
+clean; live behavior verified in 7.1. Satisfies R1.1–R1.6, R2.1, R2.2, R3.1, R3.2.
+
+### 3.2 — Settings components, dialog, toast — verified
+[`frontend/src/components/`](../../frontend/src/components): `SettingsLayout` (nav + route→section, `/settings/*` and `/ssh-keys`
+aliases), `IdentityForm`, `WifiForm` (scan + datalist, SSID preserved on scan error), `MqttForm`
+(availability topic + discovery enable/prefix, password-set/clear semantics), `HomeKitForm`
+(pairing code shown only when enabled+ready+unpaired), `SshForm` (validate + save), `DevicePanel`,
+`SystemDialog` (restart/reboot/poweroff, Escape/cancel sends nothing), `Toast`. `tsc --noEmit`
+clean; live behavior in 7.1. Satisfies R4–R9 (UI), R16.1, R16.2.
+
+### 3.3 — Frontend unit tests — verified
+[`frontend/src/__tests__/`](../../frontend/src/__tests__): `helpers.test.ts` (hex↔rgb round-trip + malformed, brightness↔percent
++ clamping, 32-pixel frame decode via extracted `decodeFrame`) and `api.test.ts` (non-2xx rejects
+with server `error`, status-text fallback, 2xx parse — `fetch` stubbed). `npm test`: **9 passed**;
+`tsc --noEmit` clean. Satisfies R1.2, R2.1, R16.2.
+
 ### Execution Gantt
 
 ```mermaid
@@ -147,4 +172,8 @@ gantt
     2.3 attempt 1 (verified, 89s) :done, b_2_3_attempt1, 2026-08-16T18:54:20, 2026-08-16T18:55:49
     2.4 attempt 1 (verified, 199s) :done, b_2_4_attempt1, 2026-08-16T18:55:49, 2026-08-16T18:59:08
     2.5 attempt 1 (verified, 129s) :done, b_2_5_attempt1, 2026-08-16T18:59:08, 2026-08-16T19:01:17
+    section 3
+    3.1 attempt 1 (verified, 136s) :done, b_3_1_attempt1, 2026-08-16T19:02:17, 2026-08-16T19:04:33
+    3.2 attempt 1 (verified, 158s) :done, b_3_2_attempt1, 2026-08-16T19:04:33, 2026-08-16T19:07:11
+    3.3 attempt 1 (verified, 98s) :done, b_3_3_attempt1, 2026-08-16T19:07:11, 2026-08-16T19:08:49
 ```

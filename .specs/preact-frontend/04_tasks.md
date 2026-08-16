@@ -68,9 +68,9 @@ flowchart TD
   class n_2_3 done
   class n_2_4 done
   class n_2_5 done
-  class n_3_1 pending
-  class n_3_2 pending
-  class n_3_3 pending
+  class n_3_1 done
+  class n_3_2 done
+  class n_3_3 done
   class n_4_1 pending
   class n_5_1 pending
   class n_5_2 pending
@@ -265,12 +265,12 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
 
 ### Stage 3
 
-- [ ] 3.1 **Dashboard components (header, status, preview, controls)**
+- [x] 3.1 **Dashboard components (header, status, preview, controls)**
   - `Header.tsx`, `StatusPill.tsx` (health-poll active/offline), `Dashboard.tsx`, `Preview.tsx`
     (8×4 canvas, 32 pixels reversed in x and y, fed by `connectFrames`), `ColorPanel.tsx` (color
     input + 5 preset swatches), `BrightnessPanel.tsx` (0–100 %↔0–255, 80 ms debounce),
     `EffectPanel.tsx` (options from effect list, speed slider hidden when `solid`, 80 ms debounce).
-  - **Files:** `frontend/src/components/Header.tsx`, `frontend/src/components/StatusPill.tsx`, `frontend/src/components/Dashboard.tsx`, `frontend/src/components/Preview.tsx`, `frontend/src/components/ColorPanel.tsx`, `frontend/src/components/BrightnessPanel.tsx`, `frontend/src/components/EffectPanel.tsx`
+  - **Files:** [`frontend/src/components/Header.tsx`](../../frontend/src/components/Header.tsx), [`frontend/src/components/StatusPill.tsx`](../../frontend/src/components/StatusPill.tsx), [`frontend/src/components/Dashboard.tsx`](../../frontend/src/components/Dashboard.tsx), [`frontend/src/components/Preview.tsx`](../../frontend/src/components/Preview.tsx), [`frontend/src/components/ColorPanel.tsx`](../../frontend/src/components/ColorPanel.tsx), [`frontend/src/components/BrightnessPanel.tsx`](../../frontend/src/components/BrightnessPanel.tsx), [`frontend/src/components/EffectPanel.tsx`](../../frontend/src/components/EffectPanel.tsx)
   - **Depends on:** 2.1, 2.2
   - **Interfaces:** Consumes: `api.ts` setters + `getState` (2.1), `connectFrames`/`useStore`/`useRoute` (2.2), `styles.css` class names (2.3); Produces: the dashboard component tree mounted by 4.1.
   - **Documentation:** TSDoc on each component (props + the requirement behavior it implements, e.g. reversed-axis rendering, debounce, solid-hides-speed).
@@ -284,13 +284,13 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - **Delegation:** parallel-safe
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.1, 2.2, 3.1, 3.2_
 
-- [ ] 3.2 **Settings components, system dialog, and toast**
+- [x] 3.2 **Settings components, system dialog, and toast**
   - `SettingsLayout.tsx` (nav + routed sections), `IdentityForm.tsx`, `WifiForm.tsx` (scan +
     datalist, preserves SSID on scan error), `MqttForm.tsx` (incl. availability topic, discovery
     enable + prefix; password-set semantics + clear-password), `HomeKitForm.tsx` (pairing code
     while enabled+ready+unpaired), `SshForm.tsx` (validate + save), `DevicePanel.tsx`,
     `SystemDialog.tsx` (restart/reboot/poweroff; cancel/Escape sends nothing), `Toast.tsx`.
-  - **Files:** `frontend/src/components/SettingsLayout.tsx`, `frontend/src/components/IdentityForm.tsx`, `frontend/src/components/WifiForm.tsx`, `frontend/src/components/MqttForm.tsx`, `frontend/src/components/HomeKitForm.tsx`, `frontend/src/components/SshForm.tsx`, `frontend/src/components/DevicePanel.tsx`, `frontend/src/components/SystemDialog.tsx`, `frontend/src/components/Toast.tsx`
+  - **Files:** [`frontend/src/components/SettingsLayout.tsx`](../../frontend/src/components/SettingsLayout.tsx), [`frontend/src/components/IdentityForm.tsx`](../../frontend/src/components/IdentityForm.tsx), [`frontend/src/components/WifiForm.tsx`](../../frontend/src/components/WifiForm.tsx), [`frontend/src/components/MqttForm.tsx`](../../frontend/src/components/MqttForm.tsx), [`frontend/src/components/HomeKitForm.tsx`](../../frontend/src/components/HomeKitForm.tsx), [`frontend/src/components/SshForm.tsx`](../../frontend/src/components/SshForm.tsx), [`frontend/src/components/DevicePanel.tsx`](../../frontend/src/components/DevicePanel.tsx), [`frontend/src/components/SystemDialog.tsx`](../../frontend/src/components/SystemDialog.tsx), [`frontend/src/components/Toast.tsx`](../../frontend/src/components/Toast.tsx)
   - **Depends on:** 2.1, 2.2
   - **Interfaces:** Consumes: `api.ts` settings getters/setters + `systemAction` + `scanWifi` (2.1), `useStore`/`useRoute` (2.2), `styles.css` (2.3); Produces: the settings + dialog + toast component tree mounted by 4.1.
   - **Documentation:** TSDoc on each form (fields, the save/validate contract, and the unhappy-path surfacing it implements).
@@ -304,10 +304,10 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - **Delegation:** parallel-safe
   - _Requirements: 4.1, 4.2, 4.3, 5.1, 5.2, 5.3, 5.4, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1, 7.2, 7.3, 7.4, 8.1, 8.2, 8.3, 8.4, 9.1, 9.3, 16.1, 16.2_
 
-- [ ] 3.3 **Frontend unit tests (Vitest) for pure helpers**
+- [x] 3.3 **Frontend unit tests (Vitest) for pure helpers**
   - Tests for brightness↔percent, hex↔rgb, WS frame parsing (32 triples → grid), and the `api.ts`
     non-2xx error path (throws server `error`). Add an npm `test` script.
-  - **Files:** `frontend/src/__tests__/helpers.test.ts`, `frontend/src/__tests__/api.test.ts`
+  - **Files:** [`frontend/src/__tests__/helpers.test.ts`](../../frontend/src/__tests__/helpers.test.ts), [`frontend/src/__tests__/api.test.ts`](../../frontend/src/__tests__/api.test.ts)
   - **Depends on:** 2.1
   - **Interfaces:** Consumes: helpers + `api.ts` (2.1), frame parse (2.2); Produces: passing Vitest suite via `npm test`.
   - **Documentation:** `no public surface` (tests).

@@ -76,13 +76,45 @@
           }
         ],
         "name": "2"
+      },
+      {
+        "bars": [
+          {
+            "end": "2026-08-16T19:04:33",
+            "id": "b_3_1_attempt1",
+            "label": "3.1 attempt 1 (verified, 136s)",
+            "start": "2026-08-16T19:02:17",
+            "tags": [
+              "done"
+            ]
+          },
+          {
+            "end": "2026-08-16T19:07:11",
+            "id": "b_3_2_attempt1",
+            "label": "3.2 attempt 1 (verified, 158s)",
+            "start": "2026-08-16T19:04:33",
+            "tags": [
+              "done"
+            ]
+          },
+          {
+            "end": "2026-08-16T19:08:49",
+            "id": "b_3_3_attempt1",
+            "label": "3.3 attempt 1 (verified, 98s)",
+            "start": "2026-08-16T19:07:11",
+            "tags": [
+              "done"
+            ]
+          }
+        ],
+        "name": "3"
       }
     ],
     "target": "gantt"
   },
   "generated_from": {
     "file": "05_execution.md",
-    "sha256": "8e2b113f1fc5fef0dd7edae8b6e19fae50214a122ffba30a66682b7363dff259"
+    "sha256": "d2536231b5efa4669bb0ef7215b2f9acdac72d1f402de590b44117a56e99ea56"
   },
   "runs": [
     {
@@ -164,6 +196,36 @@
       "started_utc": "2026-08-16T18:59:08Z",
       "stopped_utc": "2026-08-16T19:01:17Z",
       "task": "2.5"
+    },
+    {
+      "attempt": 1,
+      "elapsed_seconds": 136,
+      "outcome": "verified",
+      "run_id": "run-20260816T175316Z",
+      "stage_wave": "3",
+      "started_utc": "2026-08-16T19:02:17Z",
+      "stopped_utc": "2026-08-16T19:04:33Z",
+      "task": "3.1"
+    },
+    {
+      "attempt": 1,
+      "elapsed_seconds": 158,
+      "outcome": "verified",
+      "run_id": "run-20260816T175316Z",
+      "stage_wave": "3",
+      "started_utc": "2026-08-16T19:04:33Z",
+      "stopped_utc": "2026-08-16T19:07:11Z",
+      "task": "3.2"
+    },
+    {
+      "attempt": 1,
+      "elapsed_seconds": 98,
+      "outcome": "verified",
+      "run_id": "run-20260816T175316Z",
+      "stage_wave": "3",
+      "started_utc": "2026-08-16T19:07:11Z",
+      "stopped_utc": "2026-08-16T19:08:49Z",
+      "task": "3.3"
     }
   ],
   "unresolved": [
