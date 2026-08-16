@@ -4,33 +4,24 @@
     "blocked": {},
     "parallel_candidates": [],
     "ready": [
-      "1.1",
       "1.2"
     ],
     "serial_candidates": [
-      "1.1",
       "1.2"
     ],
     "waves": [
       {
         "mode": "serial",
         "tasks": [
-          "1.1"
-        ],
-        "wave": 1
-      },
-      {
-        "mode": "serial",
-        "tasks": [
           "1.2"
         ],
-        "wave": 2
+        "wave": 1
       }
     ]
   },
   "generated_from": {
     "file": "04_tasks.md",
-    "sha256": "e54e35283f8e64345aaad26e9b602da216d60baf86a913cd0b7c08947de89a6b"
+    "sha256": "a8332b97170a2bee6ac18b0a5c37e7fd12c99fba69b0e14dc9105001b8ab3e05"
   },
   "requirement_count": 62,
   "schema_version": 1,
@@ -68,7 +59,7 @@
   "tasks": [
     {
       "capability_tier": "balanced",
-      "checked": false,
+      "checked": true,
       "delegation": "controller",
       "dependency_delivery": "none",
       "dependency_resolution": "change",
@@ -83,7 +74,7 @@
         ".gitignore"
       ],
       "id": "1.1",
-      "interfaces": "Consumes: design \u00a7\"Frontend \u2014 module layout\", Current Technology Evidence (Vite `base:'/'`, `outDir:'../web-dist'`, `emptyOutDir:true`); Produces: a buildable Vite project whose `npm run build` emits `web-dist/index.html` + `web-dist/assets/*`, and a resolved `frontend/package-lock.json`.",
+      "interfaces": "Consumes: design \u00a7\"Frontend \u2014 module layout\", Current Technology Evidence (Vite `base:'/'`, `outDir:'../web-dist'`, `emptyOutDir:true`); Produces: a buildable Vite project whose `npm run build` emits [`web-dist/index.html`](../../web-dist/index.html) + `web-dist/assets/*`, and a resolved [`frontend/package-lock.json`](../../frontend/package-lock.json).",
       "optional": false,
       "reasoning_level": "medium",
       "requirements": [
@@ -91,11 +82,11 @@
         "15.1"
       ],
       "resolved_model": "claude-sonnet-5",
-      "risk": "low \u2014 adds the npm dependency surface; supply chain covered by the pre/post-change dependency-audit records above. Rollback: remove `frontend/` and `web-dist/`.",
+      "risk": "low \u2014 adds the npm dependency surface; supply chain covered by the pre/post-change dependency-audit records above. Rollback: remove [`frontend/`](../../frontend) and [`web-dist/`](../../web-dist).",
       "stage": 1,
       "task_category": "code_analysis",
       "title": "**Scaffold the Vite Preact + TypeScript frontend project**",
-      "verification": "`cd frontend && npm ci && npm run build` produces `web-dist/index.html` and hashed `web-dist/assets/*`; the ignore file excludes `frontend/node_modules` but not `web-dist/`; `npm audit` clean of high/critical (post-change record above); config comment reviewed."
+      "verification": "`cd frontend && npm ci && npm run build` produces [`web-dist/index.html`](../../web-dist/index.html) and hashed `web-dist/assets/*`; the ignore file excludes the frontend `node_modules` but not [`web-dist/`](../../web-dist); `npm audit` clean of high/critical (post-change record above); config comment reviewed."
     },
     {
       "capability_tier": "balanced",
@@ -422,7 +413,7 @@
         "web-dist/"
       ],
       "id": "4.1",
-      "interfaces": "Consumes: all components (3.1, 3.2), `styles.css` (2.3), `getBootstrap`/`connectFrames`/router/store (2.1, 2.2); Produces: committed `web-dist/index.html` + `web-dist/assets/*` embeddable by `rust-embed`.",
+      "interfaces": "Consumes: all components (3.1, 3.2), `styles.css` (2.3), `getBootstrap`/`connectFrames`/router/store (2.1, 2.2); Produces: committed [`web-dist/index.html`](../../web-dist/index.html) + `web-dist/assets/*` embeddable by `rust-embed`.",
       "optional": false,
       "reasoning_level": "high",
       "requirements": [
@@ -437,8 +428,8 @@
       "risk": "medium \u2014 commits generated output; guarded by 5.2.",
       "stage": 4,
       "task_category": "code_analysis",
-      "title": "**Wire `App`, build the bundle, and commit `web-dist/`**",
-      "verification": "`npm run build` succeeds; `web-dist/index.html` + hashed assets present and committed; gzipped JS+CSS \u2264 50 KB (record the measured size); `tsc --noEmit` clean."
+      "title": "**Wire `App`, build the bundle, and commit [`web-dist/`](../../web-dist)**",
+      "verification": "`npm run build` succeeds; [`web-dist/index.html`](../../web-dist/index.html) + hashed assets present and committed; gzipped JS+CSS \u2264 50 KB (record the measured size); `tsc --noEmit` clean."
     },
     {
       "capability_tier": "frontier",
@@ -458,7 +449,7 @@
         "web/style.css"
       ],
       "id": "5.1",
-      "interfaces": "Consumes: committed `web-dist/` (4.1), `get_bootstrap` + router (2.5), design \u00a7\"Backend \u2014 asset serving\"/\"router\"; Produces: `serve_spa` handler, a `.fallback`-terminated router with `/api/bootstrap`, and removal of the enumerated SPA/asset routes and the legacy source files.",
+      "interfaces": "Consumes: committed [`web-dist/`](../../web-dist) (4.1), `get_bootstrap` + router (2.5), design \u00a7\"Backend \u2014 asset serving\"/\"router\"; Produces: `serve_spa` handler, a `.fallback`-terminated router with `/api/bootstrap`, and removal of the enumerated SPA/asset routes and the legacy source files.",
       "optional": false,
       "reasoning_level": "extra_high",
       "requirements": [
@@ -474,7 +465,7 @@
       "stage": 5,
       "task_category": "heavy_reasoning",
       "title": "**Integrate: embed web-dist, fallback, bootstrap route**",
-      "verification": "serve_spa tests (in 6.1); `cargo build`/`cargo test` succeed with `web-dist/` embedded; doc comments reviewed."
+      "verification": "serve_spa tests (in 6.1); `cargo build`/`cargo test` succeed with [`web-dist/`](../../web-dist) embedded; doc comments reviewed."
     },
     {
       "capability_tier": "balanced",
@@ -490,7 +481,7 @@
         "deploy/build.sh"
       ],
       "id": "5.2",
-      "interfaces": "Consumes: `frontend/` build (1.1), committed `web-dist/` (4.1); Produces: a guard script that fails on a stale/oversized bundle and a `build.sh` that runs it before deploy.",
+      "interfaces": "Consumes: [`frontend/`](../../frontend) build (1.1), committed [`web-dist/`](../../web-dist) (4.1); Produces: a guard script that fails on a stale/oversized bundle and a `build.sh` that runs it before deploy.",
       "optional": false,
       "reasoning_level": "medium",
       "requirements": [
@@ -503,7 +494,7 @@
       "stage": 5,
       "task_category": "code_analysis",
       "title": "**Stale-bundle guard and deploy wiring**",
-      "verification": "guard passes on a fresh build and fails when `web-dist/` is edited out-of-band or exceeds budget; `build.sh` invokes it; comment reviewed."
+      "verification": "guard passes on a fresh build and fails when [`web-dist/`](../../web-dist) is edited out-of-band or exceeds budget; `build.sh` invokes it; comment reviewed."
     },
     {
       "capability_tier": "balanced",

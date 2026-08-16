@@ -1,7 +1,7 @@
 # Discovery: Preact SPA Frontend
 
 <!-- spec-nav:start -->
-**Spec navigation:** [State](00_state.md) · [Discovery](01_discovery.md) · [Requirements](02_requirements.md) · [Design](03_design.md) · [Tasks](04_tasks.md)
+**Spec navigation:** [State](00_state.md) · [Discovery](01_discovery.md) · [Requirements](02_requirements.md) · [Design](03_design.md) · [Tasks](04_tasks.md) · [Execution](05_execution.md)
 <!-- spec-nav:end -->
 
 ## Problem and Outcome
@@ -38,7 +38,7 @@ frontend makes a simpler contract obvious.
 
 **In scope**
 
-- New Preact + TypeScript SPA under a `frontend/` source tree, built with Vite (`preact-ts`).
+- New Preact + TypeScript SPA under a [`frontend/`](../../frontend) source tree, built with Vite (`preact-ts`).
 - Feature and visual parity with the current UI (OctoCam-style layout), covering every control and
   network interaction inventoried below.
 - A typed API client mirroring the existing endpoints, plus live LED preview over the `/ws`
@@ -123,14 +123,14 @@ build shape without relying on training-data memory.
 
 ## Chosen Direction
 
-**Approach A.** A new `frontend/` Vite + Preact + TypeScript project. `npm run build` on the host
+**Approach A.** A new [`frontend/`](../../frontend) Vite + Preact + TypeScript project. `npm run build` on the host
 produces a bundle (Vite `frontend/dist/`) that is committed into the repo at a fixed path; `rust-embed`
 ([`src/web.rs`](../../src/web.rs)) embeds that path. In [`src/api.rs`](../../src/api.rs), the
 enumerated `serve_index` routes (`/settings`, `/identity`, …) are replaced by a single catch-all
 fallback that serves `index.html` for non-API/non-asset paths, and hashed files under `/assets/*`
 are served by path. A new aggregate `GET /api/bootstrap` returns state + effects + all settings in
 one response so the SPA's initial load is one round-trip instead of eight (meaningful on the slow
-Pi). A CI/build guard ensures the committed bundle is not stale relative to `frontend/` source. All
+Pi). A CI/build guard ensures the committed bundle is not stale relative to [`frontend/`](../../frontend) source. All
 `/api/*` handlers keep their current request/response shapes except where cleanup is explicitly
 scoped; the Host/Origin guard and same-origin fetch behavior are unchanged.
 
@@ -187,7 +187,7 @@ Source IR: [`diagrams/architecture-outline.json`](diagrams/architecture-outline.
 ## Failure and Verification Strategy
 
 - **Stale bundle:** the biggest risk of committing built assets is shipping a bundle that doesn't
-  match `frontend/` source. Mitigation (detailed in design): a check that rebuilds and compares, or
+  match [`frontend/`](../../frontend) source. Mitigation (detailed in design): a check that rebuilds and compares, or
   a hash guard, run in CI and available locally before deploy.
 - **Asset serving mismatch:** hashed asset paths must resolve; the existing `serve_asset`/`rust-embed`
   test ([`src/web.rs:31`](../../src/web.rs)) is rewritten to assert `index.html` plus the hashed
@@ -203,7 +203,7 @@ Source IR: [`diagrams/architecture-outline.json`](diagrams/architecture-outline.
 
 Deferred to design/requirements, not blocking discovery approval:
 
-1. **Committed bundle location** — reuse [`web/`](../../web/) (replacing the three files) vs a new `web-dist/`
+1. **Committed bundle location** — reuse [`web/`](../../web/) (replacing the three files) vs a new [`web-dist/`](../../web-dist)
    directory, and exactly how the staleness guard is implemented.
 2. **`/api/bootstrap` shape** — which fields to aggregate, and whether to keep the individual
    `GET` endpoints for parity/debugging (lean: keep them).

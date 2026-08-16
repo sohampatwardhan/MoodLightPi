@@ -1,12 +1,12 @@
 # Design: Preact SPA Frontend
 
 <!-- spec-nav:start -->
-**Spec navigation:** [State](00_state.md) · [Discovery](01_discovery.md) · [Requirements](02_requirements.md) · [Design](03_design.md) · [Tasks](04_tasks.md)
+**Spec navigation:** [State](00_state.md) · [Discovery](01_discovery.md) · [Requirements](02_requirements.md) · [Design](03_design.md) · [Tasks](04_tasks.md) · [Execution](05_execution.md)
 <!-- spec-nav:end -->
 
 Realizes the approved [`01_discovery.md`](01_discovery.md) chosen direction (Approach A) and the
 approved criteria in [`02_requirements.md`](02_requirements.md) (R1–R18). The frontend becomes a
-Preact + TypeScript SPA built by Vite into a committed `web-dist/` directory embedded by
+Preact + TypeScript SPA built by Vite into a committed [`web-dist/`](../../web-dist) directory embedded by
 `rust-embed`; the axum layer gains a catch-all SPA fallback and an aggregate bootstrap endpoint;
 the MQTT runtime gains Home Assistant availability + discovery.
 
@@ -15,7 +15,7 @@ the MQTT runtime gains Home Assistant availability + discovery.
 - **Vite — queried via Context7 (`/vitejs/vite`, v7).** `create-vite` provides a `preact-ts` template; `base`
   defaults to `/` (the UI is served at the site root, so no path rewriting); `vite build` writes
   `index.html` plus hashed files under an `assets/` subdirectory of `build.outDir`. Decision: a
-  `frontend/` Vite project with `base: '/'`, `build.outDir: '../web-dist'`, `emptyOutDir: true`.
+  [`frontend/`](../../frontend) Vite project with `base: '/'`, `build.outDir: '../web-dist'`, `emptyOutDir: true`.
 - **rumqttc — queried via Context7 (`/bytebeamio/rumqtt`, matching the pinned `0.24` in [`Cargo.toml`](../../Cargo.toml)).**
   `AsyncClient::publish(topic, QoS, retain: bool, payload)` — the `retain` flag is the third
   positional argument (already used in [`src/mqtt.rs`](../../src/mqtt.rs)); a Last-Will is set with
@@ -40,7 +40,7 @@ device-artifact dependency-security gate applies here. The only additions are **
 build/runtime npm packages** — `preact` (shipped as prebuilt static assets, never executed on the
 device) plus host-only build tooling (`vite`, `@preact/preset-vite`, TypeScript). A full
 dependency-security audit of those is **not applicable at this design gate because** the
-`frontend/package-lock.json` that the audit resolves against does not exist until the frontend
+[`frontend/package-lock.json`](../../frontend/package-lock.json) that the audit resolves against does not exist until the frontend
 project is scaffolded in execution; it is scheduled as an explicit execution task (run the `dependency-security-audit` skill against
 the generated lockfile, `npm audit` in CI) before the bundle is committed. The intentional decision to add no
 routing/state library keeps the frontend dependency surface to `preact` alone.
@@ -208,7 +208,7 @@ same `client_id`, giving HA a stable identity across reconnects (R18.2).
 `discovery_prefix` (R6.5/R6.6). `validate_mqtt_settings` additionally requires a non-empty
 `availability_topic` and, when `discovery_enabled`, a non-empty `discovery_prefix` (R6.4).
 
-### Frontend — module layout (`frontend/`)
+### Frontend — module layout ([`frontend/`](../../frontend))
 
 | Path | Responsibility |
 |---|---|
@@ -253,12 +253,12 @@ to `systemAction` and closes on cancel/Escape without sending (R9.1/R9.3).
 
 ### Build pipeline + stale-bundle guard
 
-- Host: `cd frontend && npm ci && npm run build` writes `web-dist/`. `web-dist/` is committed.
-- `deploy/check-bundle.sh` rebuilds into a temp dir and compares against committed `web-dist/`
+- Host: `cd frontend && npm ci && npm run build` writes [`web-dist/`](../../web-dist). [`web-dist/`](../../web-dist) is committed.
+- `deploy/check-bundle.sh` rebuilds into a temp dir and compares against committed [`web-dist/`](../../web-dist)
   (byte-identical), exiting non-zero on drift (R13.3). It runs in CI and is invoked by
   [`deploy/build.sh`](../../deploy/build.sh) on the host before the source tarball is sent to the
   Pi, so a stale bundle blocks deployment. The Pi build itself is unchanged and needs no Node
-  (R13.1) — it embeds the committed `web-dist/` via `rust-embed` (R13.2).
+  (R13.1) — it embeds the committed [`web-dist/`](../../web-dist) via `rust-embed` (R13.2).
 
 ## Data Models
 
@@ -405,14 +405,14 @@ support ELK.)
   Escape-closable (R9.3); status conveyed by text, not color alone. *Verification:* manual + a11y
   smoke check.
 - **Performance / footprint:** bundle JS+CSS ≤ 50 KB gz (R15.1), verified by a size check on
-  `web-dist/`; bootstrap collapses 8 initial requests to 1 (R11) — material on the Pi Zero W.
+  [`web-dist/`](../../web-dist); bootstrap collapses 8 initial requests to 1 (R11) — material on the Pi Zero W.
 - **Observability:** MQTT availability/discovery publishes and failures are `tracing`-logged, as
   existing MQTT code is.
 - **Migration:** `settings.json` stays compatible via serde defaults on the three new MQTT fields;
   first save populates them. No data migration.
 - **Rollout:** ship via the existing tarball build; the stale-bundle guard blocks deploying an
   out-of-date UI (R13.3).
-- **Rollback:** revert the commit (binary re-embeds the previous `web-dist/`); MQTT clears its
+- **Rollback:** revert the commit (binary re-embeds the previous [`web-dist/`](../../web-dist)); MQTT clears its
   retained discovery on downgrade only if reached via a clean disable — noted as an accepted minor
   limitation (a stale retained discovery topic can be cleared manually).
 
@@ -428,7 +428,7 @@ support ELK.)
 | R10 routing | `router.ts` + fallback serving `index.html` for client routes |
 | R11 bootstrap | `get_bootstrap` + `getBootstrap()` single initial load |
 | R12 serving | `serve_spa` fallback + `rust-embed` |
-| R13 build | committed `web-dist/`, `rust-embed`, `check-bundle.sh` |
+| R13 build | committed [`web-dist/`](../../web-dist), `rust-embed`, `check-bundle.sh` |
 | R14 security | same-origin `api.ts`, retained Host/Origin guard |
 | R15 footprint | preact-only deps + size check |
 | R16 feedback | `Toast` on success/failure |
@@ -467,11 +467,11 @@ support ELK.)
     non-API, non-WS paths serve `index.html`; `/api/*` and `/ws` are never shadowed; a missing
     file-like path is 404. **Validates: Requirements 12.1, 12.2, 12.3, 12.4**
 11. **Self-contained build.** A Rust-only build (no Node) yields a binary serving the whole UI from
-    memory; a committed bundle inconsistent with `frontend/` source fails the guard.
+    memory; a committed bundle inconsistent with [`frontend/`](../../frontend) source fails the guard.
     **Validates: Requirements 13.1, 13.2, 13.3**
 12. **Security parity.** All SPA requests are same-origin; a foreign Host/Origin on any `/api` or
     `/ws` request (including bootstrap) is rejected 403. **Validates: Requirements 14.1, 14.2**
-13. **Footprint.** The compressed JS+CSS of `web-dist/` is ≤ 50 KB. **Validates: Requirements 15.1**
+13. **Footprint.** The compressed JS+CSS of [`web-dist/`](../../web-dist) is ≤ 50 KB. **Validates: Requirements 15.1**
 14. **Feedback.** A successful save/action shows a transient confirmation; a failed request shows a
     transient error. **Validates: Requirements 16.1, 16.2**
 15. **MQTT availability.** On connect the broker holds a retained `offline` will and the device
@@ -507,8 +507,8 @@ endpoint (API completeness, negligible cost).
 
 ## Open Decisions (resolved)
 
-- **Bundle location:** a new committed `web-dist/` (clearly generated), replacing [`web/`](../../web/); the three
-  legacy files are deleted. `rust-embed` folder becomes `web-dist/`.
+- **Bundle location:** a new committed [`web-dist/`](../../web-dist) (clearly generated), replacing [`web/`](../../web/); the three
+  legacy files are deleted. `rust-embed` folder becomes [`web-dist/`](../../web-dist).
 - **Bootstrap shape:** aggregates state+seq+effects+all settings; individual endpoints are kept.
 - **Unused routes:** `/api/power` and `/api/settings/homekit/pairing-code` are kept; only the
   enumerated SPA routes are removed.

@@ -1,19 +1,15 @@
 # Tasks: Preact SPA Frontend
 
 <!-- spec-nav:start -->
-**Spec navigation:** [State](00_state.md) · [Discovery](01_discovery.md) · [Requirements](02_requirements.md) · [Design](03_design.md) · [Tasks](04_tasks.md)
+**Spec navigation:** [State](00_state.md) · [Discovery](01_discovery.md) · [Requirements](02_requirements.md) · [Design](03_design.md) · [Tasks](04_tasks.md) · [Execution](05_execution.md)
 <!-- spec-nav:end -->
-
-Implementation plan for [`03_design.md`](03_design.md), tracing to [`02_requirements.md`](02_requirements.md)
-(R1–R18). Two mostly-independent tracks — the **frontend** (`frontend/` → committed `web-dist/`) and
-the **backend** ([`src/`](../../src/) MQTT + API) — converge at the integration task (5.1) and the
-live-verification checkpoint (7.1). `spec-execute` checks the boxes as it verifies; leave them unchecked.
 
 ## Stage and Dependency Overview
 
 ```mermaid
 %%{init: {'flowchart': {'defaultRenderer': 'elk'}}}%%
 flowchart TD
+  classDef done fill:#dcfce7,stroke:#22c55e,stroke-width:1.5px,color:#14532d
   classDef pending fill:#f1f5f9,stroke:#94a3b8,stroke-width:1.5px,color:#334155
   subgraph n_stage_1["Stage 1"]
     n_1_1@{ shape: rect, label: "1.1: **Scaffold the Vite Preact + TypeScript frontend project**" }
@@ -65,7 +61,7 @@ flowchart TD
   n_5_1 --> n_7_1
   n_5_2 --> n_7_1
   n_6_1 --> n_7_1
-  class n_1_1 pending
+  class n_1_1 done
   class n_1_2 pending
   class n_2_1 pending
   class n_2_2 pending
@@ -81,6 +77,10 @@ flowchart TD
   class n_6_1 pending
   class n_7_1 pending
 ```
+Implementation plan for [`03_design.md`](03_design.md), tracing to [`02_requirements.md`](02_requirements.md)
+(R1–R18). Two mostly-independent tracks — the **frontend** ([`frontend/`](../../frontend) → committed [`web-dist/`](../../web-dist)) and
+the **backend** ([`src/`](../../src/) MQTT + API) — converge at the integration task (5.1) and the
+live-verification checkpoint (7.1). `spec-execute` checks the boxes as it verifies; leave them unchecked.
 
 ## Delivery Schedule
 
@@ -108,28 +108,28 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
 
 ### Stage 1
 
-- [ ] 1.1 **Scaffold the Vite Preact + TypeScript frontend project**
-  - Create a `preact-ts` Vite project under `frontend/`: `package.json` (dep `preact`; dev
+- [x] 1.1 **Scaffold the Vite Preact + TypeScript frontend project**
+  - Create a `preact-ts` Vite project under [`frontend/`](../../frontend): `package.json` (dep `preact`; dev
     `vite`, `@preact/preset-vite`, `typescript`, `vitest`), `package-lock.json`, `tsconfig.json`,
     `vite.config.ts`, `index.html`, `src/main.tsx` rendering a placeholder `<App/>`. Add the
-    frontend ignore entries (`frontend/node_modules`, keep `web-dist/` tracked).
+    frontend ignore entries (the frontend `node_modules`, keep [`web-dist/`](../../web-dist) tracked).
   - `vite.config.ts`: `base: '/'`, `build.outDir: '../web-dist'`, `build.emptyOutDir: true`,
     `@preact/preset-vite`. Confirm against the design's Current Technology Evidence
     (Context7 `/vitejs/vite`); re-query if the pinned Vite major has changed.
-  - **Files:** `frontend/package.json`, `frontend/package-lock.json`, `frontend/tsconfig.json`, `frontend/vite.config.ts`, `frontend/index.html`, `frontend/src/main.tsx`, [`.gitignore`](../../.gitignore)
-  - **Interfaces:** Consumes: design §"Frontend — module layout", Current Technology Evidence (Vite `base:'/'`, `outDir:'../web-dist'`, `emptyOutDir:true`); Produces: a buildable Vite project whose `npm run build` emits `web-dist/index.html` + `web-dist/assets/*`, and a resolved `frontend/package-lock.json`.
-  - **Documentation:** header comment in `vite.config.ts` stating the embed contract (why `outDir` is the repo-level `web-dist/` and why `emptyOutDir`); no other public surface.
+  - **Files:** [`frontend/package.json`](../../frontend/package.json), [`frontend/package-lock.json`](../../frontend/package-lock.json), [`frontend/tsconfig.json`](../../frontend/tsconfig.json), [`frontend/vite.config.ts`](../../frontend/vite.config.ts), [`frontend/index.html`](../../frontend/index.html), [`frontend/src/main.tsx`](../../frontend/src/main.tsx), [`.gitignore`](../../.gitignore)
+  - **Interfaces:** Consumes: design §"Frontend — module layout", Current Technology Evidence (Vite `base:'/'`, `outDir:'../web-dist'`, `emptyOutDir:true`); Produces: a buildable Vite project whose `npm run build` emits [`web-dist/index.html`](../../web-dist/index.html) + `web-dist/assets/*`, and a resolved [`frontend/package-lock.json`](../../frontend/package-lock.json).
+  - **Documentation:** header comment in `vite.config.ts` stating the embed contract (why `outDir` is the repo-level [`web-dist/`](../../web-dist) and why `emptyOutDir`); no other public surface.
   - **Dependency resolution:** change
   - **Dependency delivery:** none
-  - **Context7 evidence:** state=pending | identity=/vitejs/vite | version=7.0.0 | decision=preact-ts scaffold with base '/' and outDir '../web-dist'
-  - **Pre-change dependency audit:** state=pending | command=dependency-security-audit change | expected_json=.security/dependency-audit/pre-change.json | expected_markdown=.security/dependency-audit/pre-change.md | review=pending
-  - **Resolution edit:** state=pending | expected_files=frontend/package.json, frontend/package-lock.json
-  - **Project tests:** state=pending | expected_evidence=frontend/.audit/build-test.log
-  - **Post-change dependency audit:** state=pending | command=dependency-security-audit change | expected_json=.security/dependency-audit/post-change.json | expected_markdown=.security/dependency-audit/post-change.md | review=pending
+  - **Context7 evidence:** state=completed | identity=/vitejs/vite | version=7.3.6 | decision=preact-ts scaffold with base '/' and outDir '../web-dist'; base default '/' and dist/assets layout confirmed
+  - **Pre-change dependency audit:** state=completed | command=dependency-security-audit change | mode=change | timestamp=2026-08-16T18:39:06.707861Z | project_revision=34f666ffc8a2294da5aecbefcc1779e6cf29eab5 | inventory_fingerprint=8c7c6ec061c7c79294ca928b41cae01171b7cd6d0bd02556fdf1ca54014da338 | json=[pre-change.json](../../.security/dependency-audit/pre-change.json) | markdown=[pre-change.md](../../.security/dependency-audit/pre-change.md) | review=completed | result=warnings | exit=0 | decision=empty-baseline snapshot before adding frontend deps; 0 findings | warnings_reviewed=true | clean=false
+  - **Resolution edit:** state=completed | files=[frontend/package.json](../../frontend/package.json), [frontend/package-lock.json](../../frontend/package-lock.json)
+  - **Project tests:** state=completed | evidence=[frontend-build-test.md](../../.specs/preact-frontend/evidence/frontend-build-test.md)
+  - **Post-change dependency audit:** state=completed | command=dependency-security-audit change | mode=change | timestamp=2026-08-16T18:39:09.313934Z | project_revision=34f666ffc8a2294da5aecbefcc1779e6cf29eab5 | inventory_fingerprint=814a1ddf64553b2b21ede85ae3cc2f815928f740080f057c189c62077728726d | json=[post-change.json](../../.security/dependency-audit/post-change.json) | markdown=[post-change.md](../../.security/dependency-audit/post-change.md) | review=completed | result=warnings | exit=0 | decision=frontend deps (preact + vite toolchain) audited, 0 vulnerability findings; warnings are inventory-completeness only, accepted | warnings_reviewed=true | clean=false
   - **Stage:** 1
-  - **Verification:** `cd frontend && npm ci && npm run build` produces `web-dist/index.html` and hashed `web-dist/assets/*`; the ignore file excludes `frontend/node_modules` but not `web-dist/`; `npm audit` clean of high/critical (post-change record above); config comment reviewed.
+  - **Verification:** `cd frontend && npm ci && npm run build` produces [`web-dist/index.html`](../../web-dist/index.html) and hashed `web-dist/assets/*`; the ignore file excludes the frontend `node_modules` but not [`web-dist/`](../../web-dist); `npm audit` clean of high/critical (post-change record above); config comment reviewed.
   - **Estimated effort:** 1–2 hours
-  - **Risk:** low — adds the npm dependency surface; supply chain covered by the pre/post-change dependency-audit records above. Rollback: remove `frontend/` and `web-dist/`.
+  - **Risk:** low — adds the npm dependency surface; supply chain covered by the pre/post-change dependency-audit records above. Rollback: remove [`frontend/`](../../frontend) and [`web-dist/`](../../web-dist).
   - **Task category:** code_analysis
   - **Delegation:** controller
   - _Requirements: 13.1, 15.1_
@@ -323,20 +323,20 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
 
 ### Stage 4
 
-- [ ] 4.1 **Wire `App`, build the bundle, and commit `web-dist/`**
+- [ ] 4.1 **Wire `App`, build the bundle, and commit [`web-dist/`](../../web-dist)**
   - `frontend/src/app.tsx`: mount header + router switching dashboard/settings routes
     (`/`, `/settings`, `/identity`, `/wifi`, `/mqtt`, `/homekit`, `/ssh`, `/device` + `/settings/*`
     aliases), do the single `getBootstrap()` initial load seeding the store, then open the frame
     WS and start health (15 s) + state (≥5 s) polling. Run `npm run build`; commit the generated
-    `web-dist/` (`index.html` + `assets/*`). Confirm the gzipped JS+CSS ≤ 50 KB.
-  - **Files:** `frontend/src/app.tsx`, `web-dist/`
+    [`web-dist/`](../../web-dist) (`index.html` + `assets/*`). Confirm the gzipped JS+CSS ≤ 50 KB.
+  - **Files:** `frontend/src/app.tsx`, [`web-dist/`](../../web-dist)
   - **Depends on:** 2.3, 3.1, 3.2
-  - **Interfaces:** Consumes: all components (3.1, 3.2), `styles.css` (2.3), `getBootstrap`/`connectFrames`/router/store (2.1, 2.2); Produces: committed `web-dist/index.html` + `web-dist/assets/*` embeddable by `rust-embed`.
+  - **Interfaces:** Consumes: all components (3.1, 3.2), `styles.css` (2.3), `getBootstrap`/`connectFrames`/router/store (2.1, 2.2); Produces: committed [`web-dist/index.html`](../../web-dist/index.html) + `web-dist/assets/*` embeddable by `rust-embed`.
   - **Documentation:** TSDoc on `app.tsx` (route table, bootstrap-then-subscribe load order).
   - **Dependency resolution:** none
   - **Dependency delivery:** none
   - **Stage:** 4
-  - **Verification:** `npm run build` succeeds; `web-dist/index.html` + hashed assets present and committed; gzipped JS+CSS ≤ 50 KB (record the measured size); `tsc --noEmit` clean.
+  - **Verification:** `npm run build` succeeds; [`web-dist/index.html`](../../web-dist/index.html) + hashed assets present and committed; gzipped JS+CSS ≤ 50 KB (record the measured size); `tsc --noEmit` clean.
   - **Estimated effort:** 1.5–2.5 hours
   - **Risk:** medium — commits generated output; guarded by 5.2.
   - **Task category:** code_analysis
@@ -355,12 +355,12 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
     [`web/`](../../web/) source files.
   - **Files:** [`src/web.rs`](../../src/web.rs), [`src/api.rs`](../../src/api.rs), [`web/index.html`](../../web/index.html), [`web/app.js`](../../web/app.js), [`web/style.css`](../../web/style.css)
   - **Depends on:** 4.1, 2.5
-  - **Interfaces:** Consumes: committed `web-dist/` (4.1), `get_bootstrap` + router (2.5), design §"Backend — asset serving"/"router"; Produces: `serve_spa` handler, a `.fallback`-terminated router with `/api/bootstrap`, and removal of the enumerated SPA/asset routes and the legacy source files.
+  - **Interfaces:** Consumes: committed [`web-dist/`](../../web-dist) (4.1), `get_bootstrap` + router (2.5), design §"Backend — asset serving"/"router"; Produces: `serve_spa` handler, a `.fallback`-terminated router with `/api/bootstrap`, and removal of the enumerated SPA/asset routes and the legacy source files.
   - **Documentation:** doc comment on `serve_spa` stating the three-way routing contract and cache policy; note in `router()` why the fallback cannot shadow `/api`/`/ws`.
   - **Dependency resolution:** none
   - **Dependency delivery:** none
   - **Stage:** 5
-  - **Verification:** serve_spa tests (in 6.1); `cargo build`/`cargo test` succeed with `web-dist/` embedded; doc comments reviewed.
+  - **Verification:** serve_spa tests (in 6.1); `cargo build`/`cargo test` succeed with [`web-dist/`](../../web-dist) embedded; doc comments reviewed.
   - **Estimated effort:** 2–3 hours
   - **Risk:** medium — swaps the served UI. Rollback: revert `web.rs`/`api.rs` and restore the removed source files.
   - **Task category:** heavy_reasoning
@@ -368,18 +368,18 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 13.2, 11.1_
 
 - [ ] 5.2 **Stale-bundle guard and deploy wiring**
-  - Add `deploy/check-bundle.sh`: rebuild `frontend/` into a temp dir and compare byte-for-byte
-    against committed `web-dist/`, exiting non-zero on drift; also assert gzipped JS+CSS ≤ 50 KB.
+  - Add `deploy/check-bundle.sh`: rebuild [`frontend/`](../../frontend) into a temp dir and compare byte-for-byte
+    against committed [`web-dist/`](../../web-dist), exiting non-zero on drift; also assert gzipped JS+CSS ≤ 50 KB.
     Invoke it from [`deploy/build.sh`](../../deploy/build.sh) (host side, before the source tarball
     is sent) and document it for CI.
   - **Files:** `deploy/check-bundle.sh`, [`deploy/build.sh`](../../deploy/build.sh)
   - **Depends on:** 4.1
-  - **Interfaces:** Consumes: `frontend/` build (1.1), committed `web-dist/` (4.1); Produces: a guard script that fails on a stale/oversized bundle and a `build.sh` that runs it before deploy.
+  - **Interfaces:** Consumes: [`frontend/`](../../frontend) build (1.1), committed [`web-dist/`](../../web-dist) (4.1); Produces: a guard script that fails on a stale/oversized bundle and a `build.sh` that runs it before deploy.
   - **Documentation:** header comment in `check-bundle.sh` explaining the freshness+size contract and exit codes.
   - **Dependency resolution:** none
   - **Dependency delivery:** none
   - **Stage:** 5
-  - **Verification:** guard passes on a fresh build and fails when `web-dist/` is edited out-of-band or exceeds budget; `build.sh` invokes it; comment reviewed.
+  - **Verification:** guard passes on a fresh build and fails when [`web-dist/`](../../web-dist) is edited out-of-band or exceeds budget; `build.sh` invokes it; comment reviewed.
   - **Estimated effort:** 1.5–2.5 hours
   - **Risk:** low.
   - **Task category:** code_analysis

@@ -2,3 +2,9 @@
 /dist
 *.tmp
 .gstack/
+
+# Frontend build tooling — node_modules and Vite cache are host-only; the built
+# bundle in /web-dist IS tracked (embedded by rust-embed) and must NOT be ignored.
+/frontend/node_modules
+/frontend/.vite
+/frontend/stats.html
