@@ -1,0 +1,37 @@
+{
+  "change_control": [
+    "Any material change to the approved discovery boundary (chosen approach, scope, or the parity",
+    "Backend cleanup is in scope but must not change device behavior (engine, effects, persistence,"
+  ],
+  "gates": {
+    "audit": {
+      "evidence": "medium, scoped (MQTT + router fallback) 2026-08-16; 2 P2 findings applied (AUDIT-1/2), no P0/P1",
+      "status": "fixes_applied"
+    },
+    "design": {
+      "evidence": "[03_design.md](03_design.md) approved 2026-08-16; audit fixes AUDIT-1/2 re-approved 2026-08-16",
+      "status": "approved"
+    },
+    "discovery": {
+      "evidence": "approved 2026-08-16; MQTT availability + HA discovery delta re-approved 2026-08-16",
+      "status": "approved"
+    },
+    "execution": {
+      "evidence": "",
+      "status": "not started"
+    },
+    "requirements": {
+      "evidence": "[02_requirements.md](02_requirements.md) approved 2026-08-16 (18 requirements, 62 criteria)",
+      "status": "approved"
+    },
+    "tasks": {
+      "evidence": "[04_tasks.md](04_tasks.md) approved 2026-08-16 (15 tasks, 7 stages); audit fixes re-approved 2026-08-16",
+      "status": "approved"
+    }
+  },
+  "generated_from": {
+    "file": "00_state.md",
+    "sha256": "0b95f4f47e3c7eb2f7315ba8af020c50c060a51d718aee5737b9ab13d42015aa"
+  },
+  "schema_version": 1
+}

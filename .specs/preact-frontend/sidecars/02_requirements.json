@@ -1,0 +1,623 @@
+{
+  "schema_version": 1,
+  "generated_from": {
+    "file": "02_requirements.md",
+    "sha256": "a51a897945d1669700ff2a75f70104050854464073b37c262b9a4de9f823c224"
+  },
+  "requirements": [
+    {
+      "id": "1",
+      "user_story": {
+        "role": "owner",
+        "capability": "to set color, brightness, and effect with speed from the web UI",
+        "benefit": "I retain every lighting control the previous UI offered"
+      },
+      "criteria": [
+        {
+          "id": "1.1",
+          "kind": "event",
+          "trigger": "the owner selects a color via the color picker or a preset swatch",
+          "actor": "Web UI",
+          "behavior": "send the chosen red, green, and blue values to the Server and display the selected color"
+        },
+        {
+          "id": "1.2",
+          "kind": "event",
+          "trigger": "the owner changes the brightness control",
+          "actor": "Web UI",
+          "behavior": "send the corresponding brightness value in the range 0 to 255 and display the level as a percentage from 0 to 100"
+        },
+        {
+          "id": "1.3",
+          "kind": "event",
+          "trigger": "the owner selects an effect",
+          "actor": "Web UI",
+          "behavior": "send the selected effect name together with the speed value when the effect uses speed, and display the current effect"
+        },
+        {
+          "id": "1.4",
+          "kind": "state",
+          "trigger": "the selected effect is the solid effect",
+          "actor": "Web UI",
+          "behavior": "hide the speed control"
+        },
+        {
+          "id": "1.5",
+          "kind": "event",
+          "trigger": "the owner moves the brightness or speed control continuously",
+          "actor": "Web UI",
+          "behavior": "coalesce updates so that no more than one value is sent per 80 milliseconds of control inactivity"
+        },
+        {
+          "id": "1.6",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "Web UI",
+          "behavior": "populate the selectable effect list from the effect set the Server advertises rather than a hard-coded list"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "user_story": {
+        "role": "owner",
+        "capability": "a live preview of the LED panel",
+        "benefit": "I can see the current output without looking at the physical light"
+      },
+      "criteria": [
+        {
+          "id": "2.1",
+          "kind": "event",
+          "trigger": "the dashboard is shown",
+          "actor": "Web UI",
+          "behavior": "open a WebSocket to the Server and render each received frame as the panel's 32 LED colors in an 8-by-4 grid"
+        },
+        {
+          "id": "2.2",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "Web UI",
+          "behavior": "render the preview grid in the same orientation as the physical panel, reversed along both the horizontal and vertical axes"
+        },
+        {
+          "id": "2.3",
+          "kind": "unwanted",
+          "trigger": "the preview WebSocket connection closes",
+          "actor": "Web UI",
+          "behavior": "attempt to reopen it within approximately 1 second"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "user_story": {
+        "role": "owner",
+        "capability": "to see whether the device is reachable",
+        "benefit": "I can trust what the UI shows"
+      },
+      "criteria": [
+        {
+          "id": "3.1",
+          "kind": "state",
+          "trigger": "the Server responds successfully to health checks",
+          "actor": "Web UI",
+          "behavior": "display an active status indicator"
+        },
+        {
+          "id": "3.2",
+          "kind": "unwanted",
+          "trigger": "a health check fails",
+          "actor": "Web UI",
+          "behavior": "display an offline status indicator"
+        },
+        {
+          "id": "3.3",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "Web UI",
+          "behavior": "refresh the displayed light state at least once every 5 seconds so the controls stay consistent with the device"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "user_story": {
+        "role": "owner",
+        "capability": "to name my device and light",
+        "benefit": "it is identifiable across the UI and integrations"
+      },
+      "criteria": [
+        {
+          "id": "4.1",
+          "kind": "event",
+          "trigger": "the owner opens the identity settings",
+          "actor": "Web UI",
+          "behavior": "display the current device name, room, and light label"
+        },
+        {
+          "id": "4.2",
+          "kind": "event",
+          "trigger": "the owner saves identity settings with a non-empty device name and light label",
+          "actor": "Web UI",
+          "behavior": "send the values to the Server and display the saved result"
+        },
+        {
+          "id": "4.3",
+          "kind": "unwanted",
+          "trigger": "the owner attempts to save identity settings with an empty device name or empty light label",
+          "actor": "Server",
+          "behavior": "reject the request with a client error and THE Web UI SHALL surface the error"
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "user_story": {
+        "role": "owner",
+        "capability": "to configure Wi-Fi and pick from nearby networks",
+        "benefit": "I can move the device onto my network from the UI"
+      },
+      "criteria": [
+        {
+          "id": "5.1",
+          "kind": "event",
+          "trigger": "the owner opens the Wi-Fi settings",
+          "actor": "Web UI",
+          "behavior": "display the current SSID, security type, autoconnect preference, whether a password is already set, and the connected network when known"
+        },
+        {
+          "id": "5.2",
+          "kind": "event",
+          "trigger": "the owner requests a scan",
+          "actor": "Web UI",
+          "behavior": "request nearby networks from the Server and present them as selectable SSID choices"
+        },
+        {
+          "id": "5.3",
+          "kind": "event",
+          "trigger": "the owner saves Wi-Fi settings",
+          "actor": "Web UI",
+          "behavior": "send the SSID, password, security type, and autoconnect preference to the Server and display the resulting status"
+        },
+        {
+          "id": "5.4",
+          "kind": "unwanted",
+          "trigger": "a Wi-Fi scan cannot be performed",
+          "actor": "Server",
+          "behavior": "return an error and THE Web UI SHALL surface it without discarding the entered SSID"
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "user_story": {
+        "role": "owner",
+        "capability": "to configure an MQTT broker connection",
+        "benefit": "the light integrates with my home automation"
+      },
+      "criteria": [
+        {
+          "id": "6.1",
+          "kind": "event",
+          "trigger": "the owner opens the MQTT settings",
+          "actor": "Web UI",
+          "behavior": "display the enabled state, broker URL, client id, username, subscribe topic, publish topic, and whether a password is already stored, without revealing the stored password"
+        },
+        {
+          "id": "6.2",
+          "kind": "event",
+          "trigger": "the owner saves MQTT settings without entering a new password",
+          "actor": "Web UI",
+          "behavior": "preserve the previously stored password"
+        },
+        {
+          "id": "6.3",
+          "kind": "event",
+          "trigger": "the owner saves MQTT settings with the clear-password option selected",
+          "actor": "Server",
+          "behavior": "remove any stored password"
+        },
+        {
+          "id": "6.4",
+          "kind": "unwanted",
+          "trigger": "the owner saves MQTT settings that are invalid",
+          "actor": "Server",
+          "behavior": "reject them with a client error and THE Web UI SHALL surface the reason"
+        },
+        {
+          "id": "6.5",
+          "kind": "event",
+          "trigger": "the owner opens the MQTT settings",
+          "actor": "Web UI",
+          "behavior": "display the availability topic, whether Home Assistant discovery is enabled, and the Home Assistant discovery prefix"
+        },
+        {
+          "id": "6.6",
+          "kind": "event",
+          "trigger": "the owner saves MQTT settings",
+          "actor": "Web UI",
+          "behavior": "send the availability topic, the discovery enabled state, and the discovery prefix together with the other MQTT fields"
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "user_story": {
+        "role": "owner",
+        "capability": "to enable HomeKit and see a pairing code",
+        "benefit": "I can add the light to the Home app"
+      },
+      "criteria": [
+        {
+          "id": "7.1",
+          "kind": "event",
+          "trigger": "the owner opens the HomeKit settings",
+          "actor": "Web UI",
+          "behavior": "display the accessory name, the enabled state, and the current pairing status"
+        },
+        {
+          "id": "7.2",
+          "kind": "state",
+          "trigger": "HomeKit is enabled and ready to pair but not yet paired",
+          "actor": "Web UI",
+          "behavior": "display the pairing code"
+        },
+        {
+          "id": "7.3",
+          "kind": "event",
+          "trigger": "the owner saves HomeKit settings with a non-empty accessory name",
+          "actor": "Web UI",
+          "behavior": "send the values to the Server and display the updated status"
+        },
+        {
+          "id": "7.4",
+          "kind": "unwanted",
+          "trigger": "the owner attempts to save HomeKit settings with an empty accessory name",
+          "actor": "Server",
+          "behavior": "reject the request with a client error and THE Web UI SHALL surface the error"
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "user_story": {
+        "role": "owner",
+        "capability": "to manage SSH authorized keys",
+        "benefit": "I can control remote access to the device"
+      },
+      "criteria": [
+        {
+          "id": "8.1",
+          "kind": "event",
+          "trigger": "the owner opens the SSH settings",
+          "actor": "Web UI",
+          "behavior": "display the currently authorized keys"
+        },
+        {
+          "id": "8.2",
+          "kind": "event",
+          "trigger": "the owner requests validation of entered keys",
+          "actor": "Web UI",
+          "behavior": "report whether the keys are valid"
+        },
+        {
+          "id": "8.3",
+          "kind": "event",
+          "trigger": "the owner saves valid authorized keys",
+          "actor": "Web UI",
+          "behavior": "send them to the Server and reflect the saved result"
+        },
+        {
+          "id": "8.4",
+          "kind": "unwanted",
+          "trigger": "the owner saves keys that fail validation",
+          "actor": "Server",
+          "behavior": "reject them with a client error and THE Web UI SHALL surface the error"
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "user_story": {
+        "role": "owner",
+        "capability": "to restart the service, reboot, or power off the device",
+        "benefit": "I can manage it without a shell"
+      },
+      "criteria": [
+        {
+          "id": "9.1",
+          "kind": "event",
+          "trigger": "the owner confirms a restart-service, reboot, or poweroff action in the system-power dialog",
+          "actor": "Web UI",
+          "behavior": "request that action from the Server and confirm that it was queued"
+        },
+        {
+          "id": "9.2",
+          "kind": "unwanted",
+          "trigger": "a system action other than restart-service, reboot, or poweroff is requested",
+          "actor": "Server",
+          "behavior": "reject it with a client error"
+        },
+        {
+          "id": "9.3",
+          "kind": "event",
+          "trigger": "the owner cancels the system-power dialog or presses Escape",
+          "actor": "Web UI",
+          "behavior": "close the dialog without requesting any action"
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "user_story": {
+        "role": "owner",
+        "capability": "to move between the dashboard and settings sections with shareable URLs",
+        "benefit": "navigation feels like a normal web app"
+      },
+      "criteria": [
+        {
+          "id": "10.1",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "Web UI",
+          "behavior": "provide client-side navigation among the dashboard and the identity, Wi-Fi, MQTT, HomeKit, SSH, and device settings sections, each reachable at a distinct URL path"
+        },
+        {
+          "id": "10.2",
+          "kind": "event",
+          "trigger": "a browser requests any of the Web UI's client route paths directly",
+          "actor": "Server",
+          "behavior": "respond with the SPA entry document so the requested view renders"
+        },
+        {
+          "id": "10.3",
+          "kind": "event",
+          "trigger": "the owner uses browser back or forward navigation",
+          "actor": "Web UI",
+          "behavior": "display the view corresponding to the resulting URL"
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "user_story": {
+        "role": "owner on a low-powered device",
+        "capability": "the UI to load in a single round-trip",
+        "benefit": "it appears quickly"
+      },
+      "criteria": [
+        {
+          "id": "11.1",
+          "kind": "event",
+          "trigger": "the Web UI requests the bootstrap resource",
+          "actor": "Server",
+          "behavior": "return, in one response, the current light state, the available effect set, and the identity, Wi-Fi, MQTT, HomeKit, and SSH settings"
+        },
+        {
+          "id": "11.2",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "field values in the bootstrap response",
+          "behavior": "equal the values the corresponding individual endpoints return for the same state"
+        },
+        {
+          "id": "11.3",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "Web UI",
+          "behavior": "complete its initial data load using the bootstrap resource without issuing separate per-section requests for that initial render"
+        }
+      ]
+    },
+    {
+      "id": "12",
+      "user_story": {
+        "role": "owner",
+        "capability": "the site to load reliably regardless of which URL I open",
+        "benefit": "bookmarks and refreshes work"
+      },
+      "criteria": [
+        {
+          "id": "12.1",
+          "kind": "event",
+          "trigger": "a browser requests a bundled asset path",
+          "actor": "Server",
+          "behavior": "respond with that asset's content and a matching content type"
+        },
+        {
+          "id": "12.2",
+          "kind": "event",
+          "trigger": "a browser requests a path that is not an API route, not the WebSocket route, and not a bundled asset",
+          "actor": "Server",
+          "behavior": "respond with the SPA entry document"
+        },
+        {
+          "id": "12.3",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "Server",
+          "behavior": "continue to route API and WebSocket requests to their handlers rather than serving the SPA entry document in their place"
+        },
+        {
+          "id": "12.4",
+          "kind": "unwanted",
+          "trigger": "a browser requests a bundled asset path that does not exist",
+          "actor": "Server",
+          "behavior": "respond with a not-found status rather than the SPA entry document"
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "user_story": {
+        "role": "maintainer",
+        "capability": "the device build to need only a Rust toolchain",
+        "benefit": "the Pi never needs a Node toolchain"
+      },
+      "criteria": [
+        {
+          "id": "13.1",
+          "kind": "event",
+          "trigger": "the project is built with only a Rust toolchain present and no Node or npm available",
+          "actor": "Build",
+          "behavior": "succeed and produce a binary that serves the complete web UI"
+        },
+        {
+          "id": "13.2",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "running Server",
+          "behavior": "serve the entire web UI from the single binary without reading web assets from disk at runtime"
+        },
+        {
+          "id": "13.3",
+          "kind": "unwanted",
+          "trigger": "the committed Bundle does not match what the frontend source would currently produce",
+          "actor": "Build verification",
+          "behavior": "report the discrepancy"
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "user_story": {
+        "role": "owner",
+        "capability": "the device to stay LAN-only",
+        "benefit": "the rewrite does not widen its exposure"
+      },
+      "criteria": [
+        {
+          "id": "14.1",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "Web UI",
+          "behavior": "issue every API and WebSocket request to the same origin from which it was served"
+        },
+        {
+          "id": "14.2",
+          "kind": "unwanted",
+          "trigger": "an API or WebSocket request presents a non-LAN Host header or a foreign Origin header",
+          "actor": "Server",
+          "behavior": "reject it with a forbidden response"
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "user_story": {
+        "role": "maintainer",
+        "capability": "the new UI to stay small",
+        "benefit": "it remains suitable for an embedded device"
+      },
+      "criteria": [
+        {
+          "id": "15.1",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "compressed JavaScript and CSS of the Bundle together",
+          "behavior": "be no larger than 50 kilobytes"
+        }
+      ]
+    },
+    {
+      "id": "16",
+      "user_story": {
+        "role": "owner",
+        "capability": "clear feedback on my actions",
+        "benefit": "I know whether a change took effect"
+      },
+      "criteria": [
+        {
+          "id": "16.1",
+          "kind": "event",
+          "trigger": "a settings save or system action succeeds",
+          "actor": "Web UI",
+          "behavior": "show a transient confirmation message"
+        },
+        {
+          "id": "16.2",
+          "kind": "unwanted",
+          "trigger": "an API request fails",
+          "actor": "Web UI",
+          "behavior": "show a transient message describing the failure"
+        }
+      ]
+    },
+    {
+      "id": "17",
+      "user_story": {
+        "role": "owner using Home Assistant",
+        "capability": "the light to report whether it is online",
+        "benefit": "Home Assistant shows the entity's true availability"
+      },
+      "criteria": [
+        {
+          "id": "17.1",
+          "kind": "event",
+          "trigger": "the Server establishes its MQTT broker connection",
+          "actor": "Server",
+          "behavior": "register a Last-Will message that publishes an offline payload to the configured availability topic if the connection is lost"
+        },
+        {
+          "id": "17.2",
+          "kind": "state",
+          "trigger": "the Server is connected to the broker with MQTT enabled",
+          "actor": "Server",
+          "behavior": "publish an online payload to the configured availability topic"
+        },
+        {
+          "id": "17.3",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "Server",
+          "behavior": "publish availability messages with the retain flag set so a subscriber receives the current availability immediately on connecting"
+        },
+        {
+          "id": "17.4",
+          "kind": "event",
+          "trigger": "MQTT is disabled or the Server shuts down cleanly",
+          "actor": "Server",
+          "behavior": "publish an offline availability payload before disconnecting"
+        }
+      ]
+    },
+    {
+      "id": "18",
+      "user_story": {
+        "role": "owner",
+        "capability": "the light to register itself in Home Assistant automatically",
+        "benefit": "I do not configure the entity by hand"
+      },
+      "criteria": [
+        {
+          "id": "18.1",
+          "kind": "state",
+          "trigger": "MQTT and Home Assistant discovery are both enabled",
+          "actor": "Server",
+          "behavior": "publish a retained discovery configuration for the light under the configured discovery prefix so that Home Assistant creates the light entity automatically"
+        },
+        {
+          "id": "18.2",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "discovery configuration",
+          "behavior": "include a stable unique identifier, a device block, and references to the light's command, state, and availability topics"
+        },
+        {
+          "id": "18.3",
+          "kind": "unconditional",
+          "trigger": "",
+          "actor": "discovery configuration",
+          "behavior": "describe the light's controllable attributes of on/off, color, and brightness consistent with the device's capabilities"
+        },
+        {
+          "id": "18.4",
+          "kind": "event",
+          "trigger": "MQTT or Home Assistant discovery is disabled",
+          "actor": "Server",
+          "behavior": "clear the previously published discovery configuration so that Home Assistant no longer offers a stale entity"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,593 @@
+{
+  "concurrency": {
+    "active_stage": 1,
+    "blocked": {},
+    "parallel_candidates": [],
+    "ready": [
+      "1.1",
+      "1.2"
+    ],
+    "serial_candidates": [
+      "1.1",
+      "1.2"
+    ],
+    "waves": [
+      {
+        "mode": "serial",
+        "tasks": [
+          "1.1"
+        ],
+        "wave": 1
+      },
+      {
+        "mode": "serial",
+        "tasks": [
+          "1.2"
+        ],
+        "wave": 2
+      }
+    ]
+  },
+  "generated_from": {
+    "file": "04_tasks.md",
+    "sha256": "e54e35283f8e64345aaad26e9b602da216d60baf86a913cd0b7c08947de89a6b"
+  },
+  "requirement_count": 62,
+  "schema_version": 1,
+  "stages": {
+    "1": [
+      "1.1",
+      "1.2"
+    ],
+    "2": [
+      "2.1",
+      "2.2",
+      "2.3",
+      "2.4",
+      "2.5"
+    ],
+    "3": [
+      "3.1",
+      "3.2",
+      "3.3"
+    ],
+    "4": [
+      "4.1"
+    ],
+    "5": [
+      "5.1",
+      "5.2"
+    ],
+    "6": [
+      "6.1"
+    ],
+    "7": [
+      "7.1"
+    ]
+  },
+  "tasks": [
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "controller",
+      "dependency_delivery": "none",
+      "dependency_resolution": "change",
+      "depends_on": [],
+      "files": [
+        "frontend/package.json",
+        "frontend/package-lock.json",
+        "frontend/tsconfig.json",
+        "frontend/vite.config.ts",
+        "frontend/index.html",
+        "frontend/src/main.tsx",
+        ".gitignore"
+      ],
+      "id": "1.1",
+      "interfaces": "Consumes: design \u00a7\"Frontend \u2014 module layout\", Current Technology Evidence (Vite `base:'/'`, `outDir:'../web-dist'`, `emptyOutDir:true`); Produces: a buildable Vite project whose `npm run build` emits `web-dist/index.html` + `web-dist/assets/*`, and a resolved `frontend/package-lock.json`.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "13.1",
+        "15.1"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low \u2014 adds the npm dependency surface; supply chain covered by the pre/post-change dependency-audit records above. Rollback: remove `frontend/` and `web-dist/`.",
+      "stage": 1,
+      "task_category": "code_analysis",
+      "title": "**Scaffold the Vite Preact + TypeScript frontend project**",
+      "verification": "`cd frontend && npm ci && npm run build` produces `web-dist/index.html` and hashed `web-dist/assets/*`; the ignore file excludes `frontend/node_modules` but not `web-dist/`; `npm audit` clean of high/critical (post-change record above); config comment reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "sequential subagent",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [],
+      "files": [
+        "src/settings.rs"
+      ],
+      "id": "1.2",
+      "interfaces": "Consumes: design \"Backend \u2014 MQTT availability + discovery\" data model; Produces: `MqttSettings` with the three new fields + defaults, and an extended `validate_mqtt_settings(&MqttSettings) -> Result<(), _>`.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "6.5",
+        "6.6",
+        "6.4"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low. Rollback: revert the struct fields.",
+      "stage": 1,
+      "task_category": "code_analysis",
+      "title": "**Extend `MqttSettings` with availability + discovery fields**",
+      "verification": "`cargo test` passes; a unit test confirms an old-format `settings.json` (without the new keys) still loads with defaults; validation rejects empty availability topic / empty prefix when discovery enabled; doc comments reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "parallel-safe",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "1.1"
+      ],
+      "files": [
+        "frontend/src/types.ts",
+        "frontend/src/api.ts"
+      ],
+      "id": "2.1",
+      "interfaces": "Consumes: 1.1 project; design endpoint contracts (`/api/*`, `/api/bootstrap`, request/response JSON shapes); Produces: exported types + the `api.ts` async functions with the exact signatures in the design.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "11.1",
+        "11.3",
+        "14.1",
+        "16.2"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 2,
+      "task_category": "code_analysis",
+      "title": "**TypeScript types and the typed same-origin API client**",
+      "verification": "`tsc --noEmit` clean; error path returns server `error` message (covered by 3.3); TSDoc reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "parallel-safe",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "1.1"
+      ],
+      "files": [
+        "frontend/src/ws.ts",
+        "frontend/src/router.ts",
+        "frontend/src/store.tsx"
+      ],
+      "id": "2.2",
+      "interfaces": "Consumes: 1.1 project; design signatures for `connectFrames`, `useRoute`, `navigate`; Produces: those exports plus a `useStore()` hook exposing state + `pushToast`.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "2.1",
+        "2.3",
+        "3.3",
+        "10.1",
+        "10.3",
+        "16.1"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 2,
+      "task_category": "code_analysis",
+      "title": "**Frame WebSocket client, client router, and app store**",
+      "verification": "`tsc --noEmit` clean; frame-parse unit covered by 3.3; reconnect logic reviewed; TSDoc reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "parallel-safe",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "1.1"
+      ],
+      "files": [
+        "frontend/src/styles.css"
+      ],
+      "id": "2.3",
+      "interfaces": "Consumes: [`web/style.css`](../../web/style.css) as the visual reference (OctoCam layout, parity); Produces: `styles.css` with the class names the components in 3.1/3.2 will use.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "15.1"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 2,
+      "task_category": "code_analysis",
+      "title": "**Port the OctoCam-style CSS into the Vite project**",
+      "verification": "builds; visual parity confirmed in 7.1; contributes to the \u226450 KB budget checked in 4.1/5.2."
+    },
+    {
+      "capability_tier": "frontier",
+      "checked": false,
+      "delegation": "sequential subagent",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "1.2"
+      ],
+      "files": [
+        "src/mqtt.rs"
+      ],
+      "id": "2.4",
+      "interfaces": "Consumes: `MqttSettings` new fields (1.2); `IdentitySettings`; `effect_names()`; rumqttc `MqttOptions::set_last_will`, `AsyncClient::publish(topic, QoS, retain, payload)`; Produces: `availability_will`, `publish_availability`, `discovery_topic`, `build_discovery_config`, `publish_discovery`, `clear_discovery`, and HA-compatible `publish_state`/`commands_from_payload`.",
+      "optional": false,
+      "reasoning_level": "extra_high",
+      "requirements": [
+        "17.1",
+        "17.2",
+        "17.3",
+        "17.4",
+        "18.1",
+        "18.2",
+        "18.3",
+        "18.4"
+      ],
+      "resolved_model": "claude-opus-5",
+      "risk": "medium \u2014 behavior change to a live integration. Rollback: revert `mqtt.rs`; a stale retained discovery/availability topic may need manual clearing.",
+      "stage": 2,
+      "task_category": "heavy_reasoning",
+      "title": "**MQTT availability + HA discovery + payload compat**",
+      "verification": "unit tests (added in 6.1) for `build_discovery_config`, availability payload/retain, and `commands_from_payload` accepting `{\"state\":\"ON\",\"color\":{...}}`; existing MQTT tests still pass; doc comments reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "sequential subagent",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "1.2"
+      ],
+      "files": [
+        "src/api.rs"
+      ],
+      "id": "2.5",
+      "interfaces": "Consumes: `MqttSettings` (1.2); existing settings readers + `AppState`; Produces: extended MQTT request/response structs and `async fn get_bootstrap(...) -> Result<Json<BootstrapResponse>, StatusCode>` whose fields equal the individual endpoints'.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "11.1",
+        "11.2",
+        "6.1",
+        "6.5",
+        "6.6",
+        "14.2"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 2,
+      "task_category": "code_analysis",
+      "title": "**API: MQTT settings fields + `/api/bootstrap` aggregate**",
+      "verification": "`get_bootstrap` field-equivalence + foreign-Origin 403 tests (in 6.1); MQTT save/response round-trip includes the new fields with password still hidden; doc comments reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "parallel-safe",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "2.1",
+        "2.2"
+      ],
+      "files": [
+        "frontend/src/components/Header.tsx",
+        "frontend/src/components/StatusPill.tsx",
+        "frontend/src/components/Dashboard.tsx",
+        "frontend/src/components/Preview.tsx",
+        "frontend/src/components/ColorPanel.tsx",
+        "frontend/src/components/BrightnessPanel.tsx",
+        "frontend/src/components/EffectPanel.tsx"
+      ],
+      "id": "3.1",
+      "interfaces": "Consumes: `api.ts` setters + `getState` (2.1), `connectFrames`/`useStore`/`useRoute` (2.2), `styles.css` class names (2.3); Produces: the dashboard component tree mounted by 4.1.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6",
+        "2.1",
+        "2.2",
+        "3.1",
+        "3.2"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 3,
+      "task_category": "code_analysis",
+      "title": "**Dashboard components (header, status, preview, controls)**",
+      "verification": "`tsc --noEmit` clean; behaviors confirmed live in 7.1 (color/brightness/effect round-trip, preview, status); TSDoc reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "parallel-safe",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "2.1",
+        "2.2"
+      ],
+      "files": [
+        "frontend/src/components/SettingsLayout.tsx",
+        "frontend/src/components/IdentityForm.tsx",
+        "frontend/src/components/WifiForm.tsx",
+        "frontend/src/components/MqttForm.tsx",
+        "frontend/src/components/HomeKitForm.tsx",
+        "frontend/src/components/SshForm.tsx",
+        "frontend/src/components/DevicePanel.tsx",
+        "frontend/src/components/SystemDialog.tsx",
+        "frontend/src/components/Toast.tsx"
+      ],
+      "id": "3.2",
+      "interfaces": "Consumes: `api.ts` settings getters/setters + `systemAction` + `scanWifi` (2.1), `useStore`/`useRoute` (2.2), `styles.css` (2.3); Produces: the settings + dialog + toast component tree mounted by 4.1.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "6.1",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "6.6",
+        "7.1",
+        "7.2",
+        "7.3",
+        "7.4",
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4",
+        "9.1",
+        "9.3",
+        "16.1",
+        "16.2"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 3,
+      "task_category": "code_analysis",
+      "title": "**Settings components, system dialog, and toast**",
+      "verification": "`tsc --noEmit` clean; forms + dialog + toast confirmed live in 7.1; TSDoc reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "parallel-safe",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "2.1"
+      ],
+      "files": [
+        "frontend/src/__tests__/helpers.test.ts",
+        "frontend/src/__tests__/api.test.ts"
+      ],
+      "id": "3.3",
+      "interfaces": "Consumes: helpers + `api.ts` (2.1), frame parse (2.2); Produces: passing Vitest suite via `npm test`.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "1.2",
+        "2.1",
+        "16.2"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 3,
+      "task_category": "code_analysis",
+      "title": "**Frontend unit tests (Vitest) for pure helpers**",
+      "verification": "`npm test` green."
+    },
+    {
+      "capability_tier": "frontier",
+      "checked": false,
+      "delegation": "controller",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "2.3",
+        "3.1",
+        "3.2"
+      ],
+      "files": [
+        "frontend/src/app.tsx",
+        "web-dist/"
+      ],
+      "id": "4.1",
+      "interfaces": "Consumes: all components (3.1, 3.2), `styles.css` (2.3), `getBootstrap`/`connectFrames`/router/store (2.1, 2.2); Produces: committed `web-dist/index.html` + `web-dist/assets/*` embeddable by `rust-embed`.",
+      "optional": false,
+      "reasoning_level": "high",
+      "requirements": [
+        "10.1",
+        "10.2",
+        "10.3",
+        "11.3",
+        "3.3",
+        "15.1"
+      ],
+      "resolved_model": "claude-opus-5",
+      "risk": "medium \u2014 commits generated output; guarded by 5.2.",
+      "stage": 4,
+      "task_category": "code_analysis",
+      "title": "**Wire `App`, build the bundle, and commit `web-dist/`**",
+      "verification": "`npm run build` succeeds; `web-dist/index.html` + hashed assets present and committed; gzipped JS+CSS \u2264 50 KB (record the measured size); `tsc --noEmit` clean."
+    },
+    {
+      "capability_tier": "frontier",
+      "checked": false,
+      "delegation": "controller",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "4.1",
+        "2.5"
+      ],
+      "files": [
+        "src/web.rs",
+        "src/api.rs",
+        "web/index.html",
+        "web/app.js",
+        "web/style.css"
+      ],
+      "id": "5.1",
+      "interfaces": "Consumes: committed `web-dist/` (4.1), `get_bootstrap` + router (2.5), design \u00a7\"Backend \u2014 asset serving\"/\"router\"; Produces: `serve_spa` handler, a `.fallback`-terminated router with `/api/bootstrap`, and removal of the enumerated SPA/asset routes and the legacy source files.",
+      "optional": false,
+      "reasoning_level": "extra_high",
+      "requirements": [
+        "12.1",
+        "12.2",
+        "12.3",
+        "12.4",
+        "13.2",
+        "11.1"
+      ],
+      "resolved_model": "claude-opus-5",
+      "risk": "medium \u2014 swaps the served UI. Rollback: revert `web.rs`/`api.rs` and restore the removed source files.",
+      "stage": 5,
+      "task_category": "heavy_reasoning",
+      "title": "**Integrate: embed web-dist, fallback, bootstrap route**",
+      "verification": "serve_spa tests (in 6.1); `cargo build`/`cargo test` succeed with `web-dist/` embedded; doc comments reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "sequential subagent",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "4.1"
+      ],
+      "files": [
+        "deploy/check-bundle.sh",
+        "deploy/build.sh"
+      ],
+      "id": "5.2",
+      "interfaces": "Consumes: `frontend/` build (1.1), committed `web-dist/` (4.1); Produces: a guard script that fails on a stale/oversized bundle and a `build.sh` that runs it before deploy.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "13.1",
+        "13.3",
+        "15.1"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 5,
+      "task_category": "code_analysis",
+      "title": "**Stale-bundle guard and deploy wiring**",
+      "verification": "guard passes on a fresh build and fails when `web-dist/` is edited out-of-band or exceeds budget; `build.sh` invokes it; comment reviewed."
+    },
+    {
+      "capability_tier": "balanced",
+      "checked": false,
+      "delegation": "sequential subagent",
+      "dependency_delivery": "none",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "2.4",
+        "5.1"
+      ],
+      "files": [
+        "src/web.rs",
+        "src/api.rs",
+        "src/mqtt.rs"
+      ],
+      "id": "6.1",
+      "interfaces": "Consumes: `serve_spa` + router (5.1), `get_bootstrap` (via 5.1), MQTT builders (2.4); Produces: passing `cargo test` covering the new behaviors.",
+      "optional": false,
+      "reasoning_level": "medium",
+      "requirements": [
+        "12.1",
+        "12.2",
+        "12.3",
+        "12.4",
+        "11.1",
+        "11.2",
+        "14.2",
+        "9.2",
+        "17.1",
+        "17.2",
+        "17.3",
+        "18.1",
+        "18.2",
+        "18.3"
+      ],
+      "resolved_model": "claude-sonnet-5",
+      "risk": "low.",
+      "stage": 6,
+      "task_category": "code_analysis",
+      "title": "**Backend tests: serve_spa, bootstrap, MQTT**",
+      "verification": "`cargo test` green (host, mock backend); tests fail if the fallback shadows `/api` or a missing asset returns index."
+    },
+    {
+      "capability_tier": "frontier",
+      "checked": false,
+      "delegation": "controller",
+      "dependency_delivery": "main",
+      "dependency_resolution": "none",
+      "depends_on": [
+        "5.1",
+        "5.2",
+        "6.1"
+      ],
+      "files": [
+        ".specs/preact-frontend/evidence/live-verification.md"
+      ],
+      "id": "7.1",
+      "interfaces": "Consumes: the deployed binary (5.1), the guard (5.2), passing tests (6.1); Produces: a confirmation record of parity + HA availability/discovery on real hardware.",
+      "optional": false,
+      "reasoning_level": "high",
+      "requirements": [
+        "1.1",
+        "2.1",
+        "3.1",
+        "4.2",
+        "5.3",
+        "6.6",
+        "7.3",
+        "8.3",
+        "9.1",
+        "13.1",
+        "13.2",
+        "17.1",
+        "17.4",
+        "18.1",
+        "18.4"
+      ],
+      "resolved_model": "claude-opus-5",
+      "risk": "medium \u2014 real device + external broker/HA. Rollback: redeploy the prior binary.",
+      "stage": 7,
+      "task_category": "review",
+      "title": "Checkpoint \u2014 Live verification (device + HA)",
+      "verification": "all requirement behaviors observed on hardware; HA shows the entity and correct availability transitions; no-Node Pi build confirmed."
+    }
+  ]
+}

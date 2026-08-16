@@ -1,0 +1,24 @@
+{
+  "diagram": "state-machine",
+  "target": "stateDiagram-v2",
+  "direction": "LR",
+  "initial": "Disabled",
+  "states": [
+    { "id": "Disabled", "label": "MQTT disabled" },
+    { "id": "Connecting", "label": "connecting (LWT=offline registered)" },
+    { "id": "Online", "label": "connected: birth=online + discovery published (retained)" },
+    { "id": "Reconnecting", "label": "connection lost -> broker publishes LWT offline" }
+  ],
+  "transitions": [
+    { "from": "Disabled", "to": "Connecting", "label": "enabled + settings valid" },
+    { "from": "Connecting", "to": "Online", "label": "broker connection ack" },
+    { "from": "Connecting", "to": "Reconnecting", "label": "connect fails" },
+    { "from": "Online", "to": "Reconnecting", "label": "connection dropped" },
+    { "from": "Reconnecting", "to": "Connecting", "label": "retry after delay" },
+    { "from": "Online", "to": "Disabled", "label": "disabled/shutdown: publish offline + clear discovery" },
+    { "from": "Reconnecting", "to": "Disabled", "label": "disabled" }
+  ],
+  "notes": [
+    { "state": "Online", "side": "right", "text": "availability + discovery retained so HA sees current status on its own restart" }
+  ]
+}
