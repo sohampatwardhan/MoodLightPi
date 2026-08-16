@@ -28,7 +28,7 @@ flowchart TD
     n_3_3@{ shape: rect, label: "3.3: **Frontend unit tests (Vitest) for pure helpers**" }
   end
   subgraph n_stage_4["Stage 4"]
-    n_4_1@{ shape: rect, label: "4.1: **Wire App , build the bundle, and commit web-dist/ **" }
+    n_4_1@{ shape: rect, label: "4.1: **Wire App, build the bundle, and commit the bundle dir**" }
   end
   subgraph n_stage_5["Stage 5"]
     n_5_1@{ shape: rect, label: "5.1: **Integrate embed web-dist, fallback, bootstrap route**" }
@@ -323,7 +323,7 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
 
 ### Stage 4
 
-- [ ] 4.1 **Wire `App`, build the bundle, and commit [`web-dist/`](../../web-dist)**
+- [ ] 4.1 **Wire App, build the bundle, and commit the bundle dir**
   - `frontend/src/app.tsx`: mount header + router switching dashboard/settings routes
     (`/`, `/settings`, `/identity`, `/wifi`, `/mqtt`, `/homekit`, `/ssh`, `/device` + `/settings/*`
     aliases), do the single `getBootstrap()` initial load seeding the store, then open the frame

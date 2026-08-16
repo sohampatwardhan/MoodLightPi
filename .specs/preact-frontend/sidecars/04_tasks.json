@@ -21,7 +21,7 @@
   },
   "generated_from": {
     "file": "04_tasks.md",
-    "sha256": "a8332b97170a2bee6ac18b0a5c37e7fd12c99fba69b0e14dc9105001b8ab3e05"
+    "sha256": "c5a7688a2bfd2e402a10054c6c75069235285d2811238d8bb04c9ff21be2ea48"
   },
   "requirement_count": 62,
   "schema_version": 1,
@@ -428,7 +428,7 @@
       "risk": "medium \u2014 commits generated output; guarded by 5.2.",
       "stage": 4,
       "task_category": "code_analysis",
-      "title": "**Wire `App`, build the bundle, and commit [`web-dist/`](../../web-dist)**",
+      "title": "**Wire App, build the bundle, and commit the bundle dir**",
       "verification": "`npm run build` succeeds; [`web-dist/index.html`](../../web-dist/index.html) + hashed assets present and committed; gzipped JS+CSS \u2264 50 KB (record the measured size); `tsc --noEmit` clean."
     },
     {

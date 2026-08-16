@@ -29,6 +29,29 @@ source of truth for progress; this ledger records outcomes, verification, and de
 
 ## Execution Timing
 
+
+### Task Board
+
+```mermaid
+kanban
+  pending[Pending]
+    t_kanban_1_2[⚪ 1.2: **Extend MqttSettings with availability + discovery fields**]
+    t_kanban_2_1[⚪ 2.1: **TypeScript types and the typed same-origin API client**]
+    t_kanban_2_2[⚪ 2.2: **Frame WebSocket client, client router, and app store**]
+    t_kanban_2_3[⚪ 2.3: **Port the OctoCam-style CSS into the Vite project**]
+    t_kanban_2_4[⚪ 2.4: **MQTT availability + HA discovery + payload compat**]
+    t_kanban_2_5[⚪ 2.5: **API MQTT settings fields + /api/bootstrap aggregate**]
+    t_kanban_3_1[⚪ 3.1: **Dashboard components (header, status, preview, controls)**]
+    t_kanban_3_2[⚪ 3.2: **Settings components, system dialog, and toast**]
+    t_kanban_3_3[⚪ 3.3: **Frontend unit tests (Vitest) for pure helpers**]
+    t_kanban_4_1[⚪ 4.1: **Wire App, build the bundle, and commit the bundle dir**]
+    t_kanban_5_1[⚪ 5.1: **Integrate embed web-dist, fallback, bootstrap route**]
+    t_kanban_5_2[⚪ 5.2: **Stale-bundle guard and deploy wiring**]
+    t_kanban_6_1[⚪ 6.1: **Backend tests serve_spa, bootstrap, MQTT**]
+    t_kanban_7_1[⚪ 7.1: Checkpoint — Live verification (device + HA)]
+  done[Done]
+    t_kanban_1_1[🟢 1.1: **Scaffold the Vite Preact + TypeScript frontend project**]
+```
 ### Run Intervals
 | Run ID | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
 |---|---|---|---:|---|
@@ -51,3 +74,13 @@ emits [`web-dist/index.html`](../../web-dist/index.html) + `web-dist/assets/inde
 170 resolved packages; gate `warnings` reflects only incomplete transitive inventory resolution,
 reviewed and accepted (reports under the repo dependency-audit evidence directory). Satisfies
 R13.1, R15.1.
+
+### Execution Gantt
+
+```mermaid
+gantt
+    dateFormat YYYY-MM-DDTHH:mm:ss
+    axisFormat %m-%d %H:%M
+    section 1
+    1.1 attempt 1 (verified, 2638s) :done, b_1_1_attempt1, 2026-08-16T18:01:04, 2026-08-16T18:45:02
+```
