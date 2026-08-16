@@ -75,6 +75,9 @@ ssh "${SSH_OPTS[@]}" "$PI" '
   fi
 '
 
+echo "verifying the committed web-dist/ bundle is fresh and within budget (host) ..."
+deploy/check-bundle.sh
+
 echo "shipping source to $PI:$SRC (preserving target/ for incremental builds) ..."
 # Refresh source but keep the build cache (target/), so rebuilds are incremental.
 ssh "${SSH_OPTS[@]}" "$PI" "mkdir -p '$SRC' && find '$SRC' -maxdepth 1 -mindepth 1 ! -name target -exec rm -rf {} +"

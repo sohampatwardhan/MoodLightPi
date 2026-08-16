@@ -596,25 +596,11 @@ async fn get_bootstrap(
 }
 
 pub fn router(state: AppState) -> Router {
+    // The enumerated `serve_index` client routes and the `/style.css`,`/app.js` asset routes are
+    // gone: a single `.fallback(serve_spa)` now serves the SPA entry document for client routes
+    // and the hashed Vite assets by path. Explicit `/api/*` and `/ws` routes still match first, so
+    // the fallback never shadows them (R12.3).
     Router::new()
-        .route("/", get(crate::web::serve_index))
-        .route("/settings", get(crate::web::serve_index))
-        .route("/identity", get(crate::web::serve_index))
-        .route("/wifi", get(crate::web::serve_index))
-        .route("/mqtt", get(crate::web::serve_index))
-        .route("/homekit", get(crate::web::serve_index))
-        .route("/ssh", get(crate::web::serve_index))
-        .route("/ssh-keys", get(crate::web::serve_index))
-        .route("/device", get(crate::web::serve_index))
-        .route("/settings/identity", get(crate::web::serve_index))
-        .route("/settings/wifi", get(crate::web::serve_index))
-        .route("/settings/mqtt", get(crate::web::serve_index))
-        .route("/settings/homekit", get(crate::web::serve_index))
-        .route("/settings/ssh", get(crate::web::serve_index))
-        .route("/settings/ssh-keys", get(crate::web::serve_index))
-        .route("/settings/device", get(crate::web::serve_index))
-        .route("/style.css", get(crate::web::serve_asset))
-        .route("/app.js", get(crate::web::serve_asset))
         .route("/healthz", get(healthz))
         .route("/api/state", get(get_state))
         .route("/api/bootstrap", get(get_bootstrap))
@@ -645,6 +631,7 @@ pub fn router(state: AppState) -> Router {
             post(post_ssh_keys_validate),
         )
         .route("/ws", get(crate::ws::ws_handler))
+        .fallback(crate::web::serve_spa)
         .with_state(state)
 }
 

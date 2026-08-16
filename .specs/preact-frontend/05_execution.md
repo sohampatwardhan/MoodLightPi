@@ -35,8 +35,6 @@ source of truth for progress; this ledger records outcomes, verification, and de
 ```mermaid
 kanban
   pending[Pending]
-    t_kanban_5_1[⚪ 5.1: **Integrate embed web-dist, fallback, bootstrap route**]
-    t_kanban_5_2[⚪ 5.2: **Stale-bundle guard and deploy wiring**]
     t_kanban_6_1[⚪ 6.1: **Backend tests serve_spa, bootstrap, MQTT**]
     t_kanban_7_1[⚪ 7.1: Checkpoint — Live verification (device + HA)]
   done[Done]
@@ -51,6 +49,8 @@ kanban
     t_kanban_3_2[🟢 3.2: **Settings components, system dialog, and toast**]
     t_kanban_3_3[🟢 3.3: **Frontend unit tests (Vitest) for pure helpers**]
     t_kanban_4_1[🟢 4.1: **Wire App, build the bundle, and commit the bundle dir**]
+    t_kanban_5_1[🟢 5.1: **Integrate embed web-dist, fallback, bootstrap route**]
+    t_kanban_5_2[🟢 5.2: **Stale-bundle guard and deploy wiring**]
 ```
 ### Run Intervals
 | Run ID | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
@@ -71,6 +71,8 @@ kanban
 | run-20260816T175316Z | 3 | 3.2 | 1 | 2026-08-16T19:04:33Z | 2026-08-16T19:07:11Z | 158 | verified |
 | run-20260816T175316Z | 3 | 3.3 | 1 | 2026-08-16T19:07:11Z | 2026-08-16T19:08:49Z | 98 | verified |
 | run-20260816T175316Z | 4 | 4.1 | 1 | 2026-08-16T19:08:49Z | 2026-08-16T19:10:18Z | 89 | verified |
+| run-20260816T175316Z | 5 | 5.1 | 1 | 2026-08-16T19:10:18Z | 2026-08-16T19:13:35Z | 197 | verified |
+| run-20260816T175316Z | 5 | 5.2 | 1 | 2026-08-16T19:13:35Z | 2026-08-16T19:23:54Z | 619 | verified |
 
 ## Task Results
 
@@ -165,6 +167,21 @@ health (15 s) + state (5 s) polling; `main.tsx` renders `<App/>`. `npm run build
 committed [`web-dist/`](../../web-dist) (29 modules) — **JS 11.23 kB gz + CSS 2.20 kB gz ≈ 13.4 kB, under the 50 kB
 budget (R15.1)**. `tsc --noEmit` clean. Satisfies R10.1–R10.3, R11.3, R3.3, R15.1.
 
+### 5.1 — Integration: embed web-dist, fallback, bootstrap route — verified
+[`src/web.rs`](../../src/web.rs): `rust-embed` folder → [`web-dist/`](../../web-dist); replaced
+`serve_index`/`serve_asset` with `serve_spa` (unknown `api/`/`ws` → 404 per AUDIT-2; hashed asset →
+bytes + immutable cache; missing file-like path → 404; else `index.html` `no-cache`).
+[`src/api.rs`](../../src/api.rs): dropped the enumerated SPA routes + `/style.css`,`/app.js` and
+added `.fallback(serve_spa)` (the `/api/bootstrap` route was added in 2.5). Deleted the legacy
+`web/` source files. `cargo test`: **60 passed**. Satisfies R12.1–R12.4, R13.2, R11.1.
+
+### 5.2 — Stale-bundle guard + deploy wiring — verified
+[`deploy/check-bundle.sh`](../../deploy/check-bundle.sh): rebuilds [`frontend/`](../../frontend) in place (Vite output is deterministic/content-
+hashed) and fails via `git diff` if the committed [`web-dist/`](../../web-dist) differs, plus a gzipped JS+CSS ≤50 KB
+budget check; skips with a warning if npm is absent. Wired into [`deploy/build.sh`](../../deploy/build.sh)
+before the source tarball ships. Verified: exit 0 on the fresh bundle (gzip 13439 B), exit 1 on a
+real source-token change, then restored clean. Satisfies R13.1, R13.3, R15.1.
+
 ### Execution Gantt
 
 ```mermaid
@@ -186,4 +203,7 @@ gantt
     3.3 attempt 1 (verified, 98s) :done, b_3_3_attempt1, 2026-08-16T19:07:11, 2026-08-16T19:08:49
     section 4
     4.1 attempt 1 (verified, 89s) :done, b_4_1_attempt1, 2026-08-16T19:08:49, 2026-08-16T19:10:18
+    section 5
+    5.1 attempt 1 (verified, 197s) :done, b_5_1_attempt1, 2026-08-16T19:10:18, 2026-08-16T19:13:35
+    5.2 attempt 1 (verified, 619s) :done, b_5_2_attempt1, 2026-08-16T19:13:35, 2026-08-16T19:23:54
 ```

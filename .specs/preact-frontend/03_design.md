@@ -254,7 +254,7 @@ to `systemAction` and closes on cancel/Escape without sending (R9.1/R9.3).
 ### Build pipeline + stale-bundle guard
 
 - Host: `cd frontend && npm ci && npm run build` writes [`web-dist/`](../../web-dist). [`web-dist/`](../../web-dist) is committed.
-- `deploy/check-bundle.sh` rebuilds into a temp dir and compares against committed [`web-dist/`](../../web-dist)
+- [`deploy/check-bundle.sh`](../../deploy/check-bundle.sh) rebuilds into a temp dir and compares against committed [`web-dist/`](../../web-dist)
   (byte-identical), exiting non-zero on drift (R13.3). It runs in CI and is invoked by
   [`deploy/build.sh`](../../deploy/build.sh) on the host before the source tarball is sent to the
   Pi, so a stale bundle blocks deployment. The Pi build itself is unchanged and needs no Node

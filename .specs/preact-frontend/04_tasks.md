@@ -72,8 +72,8 @@ flowchart TD
   class n_3_2 done
   class n_3_3 done
   class n_4_1 done
-  class n_5_1 pending
-  class n_5_2 pending
+  class n_5_1 done
+  class n_5_2 done
   class n_6_1 pending
   class n_7_1 pending
 ```
@@ -345,7 +345,7 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
 
 ### Stage 5
 
-- [ ] 5.1 **Integrate: embed web-dist, fallback, bootstrap route**
+- [x] 5.1 **Integrate: embed web-dist, fallback, bootstrap route**
   - [`src/web.rs`](../../src/web.rs): change `#[folder = "web/"]` → `#[folder = "web-dist/"]`;
     replace `serve_index`/`serve_asset` with `serve_spa(uri)` (a path beginning `api/` or equal to
     `ws` → 404 per AUDIT-2; exact embedded asset → its bytes + content type + immutable cache for
@@ -367,12 +367,12 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - **Delegation:** controller
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 13.2, 11.1_
 
-- [ ] 5.2 **Stale-bundle guard and deploy wiring**
-  - Add `deploy/check-bundle.sh`: rebuild [`frontend/`](../../frontend) into a temp dir and compare byte-for-byte
+- [x] 5.2 **Stale-bundle guard and deploy wiring**
+  - Add [`deploy/check-bundle.sh`](../../deploy/check-bundle.sh): rebuild [`frontend/`](../../frontend) into a temp dir and compare byte-for-byte
     against committed [`web-dist/`](../../web-dist), exiting non-zero on drift; also assert gzipped JS+CSS ≤ 50 KB.
     Invoke it from [`deploy/build.sh`](../../deploy/build.sh) (host side, before the source tarball
     is sent) and document it for CI.
-  - **Files:** `deploy/check-bundle.sh`, [`deploy/build.sh`](../../deploy/build.sh)
+  - **Files:** [`deploy/check-bundle.sh`](../../deploy/check-bundle.sh), [`deploy/build.sh`](../../deploy/build.sh)
   - **Depends on:** 4.1
   - **Interfaces:** Consumes: [`frontend/`](../../frontend) build (1.1), committed [`web-dist/`](../../web-dist) (4.1); Produces: a guard script that fails on a stale/oversized bundle and a `build.sh` that runs it before deploy.
   - **Documentation:** header comment in `check-bundle.sh` explaining the freshness+size contract and exit codes.
