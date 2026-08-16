@@ -5,6 +5,7 @@
  * bootstrap load, dashboard, and settings — is wired in task 4.1.
  */
 import { render } from 'preact';
+import './styles.css';
 
 function App() {
   return <div id="app-root">MoodLightPi</div>;

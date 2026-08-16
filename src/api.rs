@@ -408,6 +408,9 @@ struct MqttSettingsResponse {
     password_set: bool,
     subscribe_topic: String,
     publish_topic: String,
+    availability_topic: String,
+    discovery_enabled: bool,
+    discovery_prefix: String,
     status: &'static str,
 }
 
@@ -427,6 +430,9 @@ impl From<MqttSettings> for MqttSettingsResponse {
             password_set,
             subscribe_topic: settings.subscribe_topic,
             publish_topic: settings.publish_topic,
+            availability_topic: settings.availability_topic,
+            discovery_enabled: settings.discovery_enabled,
+            discovery_prefix: settings.discovery_prefix,
             status,
         }
     }
@@ -442,6 +448,9 @@ struct MqttSettingsSave {
     clear_password: bool,
     subscribe_topic: String,
     publish_topic: String,
+    availability_topic: String,
+    discovery_enabled: bool,
+    discovery_prefix: String,
 }
 
 async fn get_mqtt(
@@ -474,11 +483,9 @@ async fn post_mqtt(
         password,
         subscribe_topic: body.subscribe_topic.trim().to_string(),
         publish_topic: body.publish_topic.trim().to_string(),
-        // Availability + discovery config are surfaced to the UI in task 2.5; until then
-        // preserve whatever is already stored (defaults on first run).
-        availability_topic: existing.availability_topic.clone(),
-        discovery_enabled: existing.discovery_enabled,
-        discovery_prefix: existing.discovery_prefix.clone(),
+        availability_topic: body.availability_topic.trim().to_string(),
+        discovery_enabled: body.discovery_enabled,
+        discovery_prefix: body.discovery_prefix.trim().to_string(),
     };
     validate_mqtt_settings(&next)
         .map_err(|e| json_error(StatusCode::BAD_REQUEST, e.to_string()))?;
@@ -557,6 +564,37 @@ async fn post_ssh_keys_validate(
     Ok(Json(json!({ "valid": true })))
 }
 
+/// Aggregate first-load payload: current light state + seq, the effect list, and every settings
+/// section, in one Host/Origin-gated response. Each field mirrors its individual endpoint exactly
+/// (same sources: engine snapshot, `effect_names`, settings store, wpa/authorized_keys readers),
+/// so the SPA can seed the whole UI in one round-trip instead of eight (R11.1–R11.3). Gated
+/// because it exposes settings (MQTT username, SSH keys) just as the per-section endpoints do
+/// (R14.2).
+async fn get_bootstrap(
+    headers: HeaderMap,
+    AxState(st): AxState<AppState>,
+) -> Result<impl IntoResponse, StatusCode> {
+    check(&headers, &st.security)?;
+    let snap = st.engine.snapshots.borrow().clone();
+    let settings = st.settings.load();
+    let mqtt = MqttSettingsResponse::from(settings.mqtt.clone());
+    let homekit = homekit_response(settings.homekit.clone(), st.homekit_status.clone());
+    let wifi = read_wifi_settings(&st.system_paths.wpa_supplicant);
+    let ssh_keys = read_authorized_keys(&st.system_paths.authorized_keys);
+    Ok(Json(json!({
+        "state": snap.state,
+        "seq": snap.seq,
+        "effects": effect_names(),
+        "settings": {
+            "identity": settings.identity,
+            "mqtt": mqtt,
+            "homekit": homekit,
+            "wifi": wifi,
+            "ssh_keys": ssh_keys,
+        },
+    })))
+}
+
 pub fn router(state: AppState) -> Router {
     Router::new()
         .route("/", get(crate::web::serve_index))
@@ -579,6 +617,7 @@ pub fn router(state: AppState) -> Router {
         .route("/app.js", get(crate::web::serve_asset))
         .route("/healthz", get(healthz))
         .route("/api/state", get(get_state))
+        .route("/api/bootstrap", get(get_bootstrap))
         .route("/api/effects", get(get_effects))
         .route("/api/power", post(post_power))
         .route("/api/system/action", post(post_system_action))
@@ -838,7 +877,7 @@ mod tests {
                     .header("host", "testhost")
                     .header("content-type", "application/json")
                     .body(Body::from(
-                        r#"{"enabled":true,"broker_url":"mqtt://broker.local:1883","client_id":"moodlightpi-test","username":"user","password":"secret","clear_password":false,"subscribe_topic":"moodlightpi/set","publish_topic":"moodlightpi/state"}"#,
+                        r#"{"enabled":true,"broker_url":"mqtt://broker.local:1883","client_id":"moodlightpi-test","username":"user","password":"secret","clear_password":false,"subscribe_topic":"moodlightpi/set","publish_topic":"moodlightpi/state","availability_topic":"moodlightpi/availability","discovery_enabled":true,"discovery_prefix":"homeassistant"}"#,
                     ))
                     .unwrap(),
             )

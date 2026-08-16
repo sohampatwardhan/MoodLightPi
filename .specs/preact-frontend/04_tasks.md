@@ -63,11 +63,11 @@ flowchart TD
   n_6_1 --> n_7_1
   class n_1_1 done
   class n_1_2 done
-  class n_2_1 pending
-  class n_2_2 pending
-  class n_2_3 pending
-  class n_2_4 pending
-  class n_2_5 pending
+  class n_2_1 done
+  class n_2_2 done
+  class n_2_3 done
+  class n_2_4 done
+  class n_2_5 done
   class n_3_1 pending
   class n_3_2 pending
   class n_3_3 pending
@@ -155,14 +155,14 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
 
 ### Stage 2
 
-- [ ] 2.1 **TypeScript types and the typed same-origin API client**
-  - Add `frontend/src/types.ts` (mirror `LightState`, `Rgb`, `BootstrapResponse`, `MqttSettings`
+- [x] 2.1 **TypeScript types and the typed same-origin API client**
+  - Add [`frontend/src/types.ts`](../../frontend/src/types.ts) (mirror `LightState`, `Rgb`, `BootstrapResponse`, `MqttSettings`
     + `MqttSave`, identity/wifi/homekit/ssh shapes from design Data Models) and
-    `frontend/src/api.ts` with the functions in design §"Frontend — module layout" (`getBootstrap`,
+    [`frontend/src/api.ts`](../../frontend/src/api.ts) with the functions in design §"Frontend — module layout" (`getBootstrap`,
     `getState`, `setColor`, `setBrightness`, `setEffect`, `setPower`, `systemAction`, settings
     getters/setters, `scanWifi`). Every call uses a relative (same-origin) URL and throws
     `Error(payload.error ?? status)` on non-2xx.
-  - **Files:** `frontend/src/types.ts`, `frontend/src/api.ts`
+  - **Files:** [`frontend/src/types.ts`](../../frontend/src/types.ts), [`frontend/src/api.ts`](../../frontend/src/api.ts)
   - **Depends on:** 1.1
   - **Interfaces:** Consumes: 1.1 project; design endpoint contracts (`/api/*`, `/api/bootstrap`, request/response JSON shapes); Produces: exported types + the `api.ts` async functions with the exact signatures in the design.
   - **Documentation:** TSDoc on each exported function (method+path, when it throws); `types.ts` notes each type mirrors a specific server contract.
@@ -176,11 +176,11 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - **Delegation:** parallel-safe
   - _Requirements: 11.1, 11.3, 14.1, 16.2_
 
-- [ ] 2.2 **Frame WebSocket client, client router, and app store**
-  - `frontend/src/ws.ts` (`connectFrames(onFrame)`, same-origin `ws(s)://…/ws`, reconnect within
-    ~1 s), `frontend/src/router.ts` (`useRoute()` + `navigate()` over History API + `popstate`),
-    `frontend/src/store.tsx` (context holding device state, effect list, toast queue).
-  - **Files:** `frontend/src/ws.ts`, `frontend/src/router.ts`, `frontend/src/store.tsx`
+- [x] 2.2 **Frame WebSocket client, client router, and app store**
+  - [`frontend/src/ws.ts`](../../frontend/src/ws.ts) (`connectFrames(onFrame)`, same-origin `ws(s)://…/ws`, reconnect within
+    ~1 s), [`frontend/src/router.ts`](../../frontend/src/router.ts) (`useRoute()` + `navigate()` over History API + `popstate`),
+    [`frontend/src/store.tsx`](../../frontend/src/store.tsx) (context holding device state, effect list, toast queue).
+  - **Files:** [`frontend/src/ws.ts`](../../frontend/src/ws.ts), [`frontend/src/router.ts`](../../frontend/src/router.ts), [`frontend/src/store.tsx`](../../frontend/src/store.tsx)
   - **Depends on:** 1.1
   - **Interfaces:** Consumes: 1.1 project; design signatures for `connectFrames`, `useRoute`, `navigate`; Produces: those exports plus a `useStore()` hook exposing state + `pushToast`.
   - **Documentation:** TSDoc on `connectFrames` (reconnect contract), `navigate`/`useRoute` (path model), and the store context (what it owns).
@@ -194,12 +194,12 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - **Delegation:** parallel-safe
   - _Requirements: 2.1, 2.3, 3.3, 10.1, 10.3, 16.1_
 
-- [ ] 2.3 **Port the OctoCam-style CSS into the Vite project**
+- [x] 2.3 **Port the OctoCam-style CSS into the Vite project**
   - Recreate the existing UI's look ([`web/style.css`](../../web/style.css)) as
-    `frontend/src/styles.css`: `:root` design tokens (dark theme), dashboard grid + settings
+    [`frontend/src/styles.css`](../../frontend/src/styles.css): `:root` design tokens (dark theme), dashboard grid + settings
     sidebar/workspace layout, custom range sliders, color input, toggle switches, status pills,
     cards, modal dialog, toast; responsive media queries. Imported once from `main.tsx`.
-  - **Files:** `frontend/src/styles.css`
+  - **Files:** [`frontend/src/styles.css`](../../frontend/src/styles.css)
   - **Depends on:** 1.1
   - **Interfaces:** Consumes: [`web/style.css`](../../web/style.css) as the visual reference (OctoCam layout, parity); Produces: `styles.css` with the class names the components in 3.1/3.2 will use.
   - **Documentation:** top-of-file comment noting the token system and that it preserves the prior OctoCam layout; `no public surface` otherwise.
@@ -213,7 +213,7 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - **Delegation:** parallel-safe
   - _Requirements: 15.1_
 
-- [ ] 2.4 **MQTT availability + HA discovery + payload compat**
+- [x] 2.4 **MQTT availability + HA discovery + payload compat**
   - In [`src/mqtt.rs`](../../src/mqtt.rs): register `LastWill::new(availability_topic, "offline",
     QoS::AtLeastOnce, retain=true)` on `MqttOptions` before connect; after subscribe publish
     retained `online`; when `discovery_enabled` publish the retained discovery config at
@@ -242,7 +242,7 @@ No confirmed calendar dates exist, so this is duration-only planning (no Gantt).
   - **Delegation:** sequential subagent
   - _Requirements: 17.1, 17.2, 17.3, 17.4, 18.1, 18.2, 18.3, 18.4_
 
-- [ ] 2.5 **API: MQTT settings fields + `/api/bootstrap` aggregate**
+- [x] 2.5 **API: MQTT settings fields + `/api/bootstrap` aggregate**
   - In [`src/api.rs`](../../src/api.rs): add `availability_topic`, `discovery_enabled`,
     `discovery_prefix` to `MqttSettingsResponse` and `MqttSettingsSave`; add `BootstrapResponse` +
     `BootstrapSettings` and `get_bootstrap` (runs `check()`, composes engine snapshot,

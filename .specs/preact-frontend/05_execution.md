@@ -35,11 +35,6 @@ source of truth for progress; this ledger records outcomes, verification, and de
 ```mermaid
 kanban
   pending[Pending]
-    t_kanban_2_1[⚪ 2.1: **TypeScript types and the typed same-origin API client**]
-    t_kanban_2_2[⚪ 2.2: **Frame WebSocket client, client router, and app store**]
-    t_kanban_2_3[⚪ 2.3: **Port the OctoCam-style CSS into the Vite project**]
-    t_kanban_2_4[⚪ 2.4: **MQTT availability + HA discovery + payload compat**]
-    t_kanban_2_5[⚪ 2.5: **API MQTT settings fields + /api/bootstrap aggregate**]
     t_kanban_3_1[⚪ 3.1: **Dashboard components (header, status, preview, controls)**]
     t_kanban_3_2[⚪ 3.2: **Settings components, system dialog, and toast**]
     t_kanban_3_3[⚪ 3.3: **Frontend unit tests (Vitest) for pure helpers**]
@@ -51,6 +46,11 @@ kanban
   done[Done]
     t_kanban_1_1[🟢 1.1: **Scaffold the Vite Preact + TypeScript frontend project**]
     t_kanban_1_2[🟢 1.2: **Extend MqttSettings with availability + discovery fields**]
+    t_kanban_2_1[🟢 2.1: **TypeScript types and the typed same-origin API client**]
+    t_kanban_2_2[🟢 2.2: **Frame WebSocket client, client router, and app store**]
+    t_kanban_2_3[🟢 2.3: **Port the OctoCam-style CSS into the Vite project**]
+    t_kanban_2_4[🟢 2.4: **MQTT availability + HA discovery + payload compat**]
+    t_kanban_2_5[🟢 2.5: **API MQTT settings fields + /api/bootstrap aggregate**]
 ```
 ### Run Intervals
 | Run ID | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
@@ -62,6 +62,11 @@ kanban
 |---|---|---|---:|---|---|---:|---|
 | run-20260816T175316Z | 1 | 1.1 | 1 | 2026-08-16T18:01:04Z | 2026-08-16T18:45:02Z | 2638 | verified |
 | run-20260816T175316Z | 1 | 1.2 | 1 | 2026-08-16T18:48:17Z | 2026-08-16T18:50:07Z | 110 | verified |
+| run-20260816T175316Z | 2 | 2.1 | 1 | 2026-08-16T18:51:11Z | 2026-08-16T18:52:13Z | 62 | verified |
+| run-20260816T175316Z | 2 | 2.2 | 1 | 2026-08-16T18:52:39Z | 2026-08-16T18:53:54Z | 75 | verified |
+| run-20260816T175316Z | 2 | 2.3 | 1 | 2026-08-16T18:54:20Z | 2026-08-16T18:55:49Z | 89 | verified |
+| run-20260816T175316Z | 2 | 2.4 | 1 | 2026-08-16T18:55:49Z | 2026-08-16T18:59:08Z | 199 | verified |
+| run-20260816T175316Z | 2 | 2.5 | 1 | 2026-08-16T18:59:08Z | 2026-08-16T19:01:17Z | 129 | verified |
 
 ## Task Results
 
@@ -86,6 +91,47 @@ validates both as MQTT topics. Made the `post_mqtt` constructor in [`src/api.rs`
 preserve the new fields (task 2.5 wires them to the request body). `cargo test`: **60 passed**
 (+3 new: defaults, backward-compat load, empty-field rejection). Satisfies R6.4, R6.5, R6.6.
 
+### 2.1 — Types + typed API client — verified
+Added [`frontend/src/types.ts`](../../frontend/src/types.ts) (mirrors of LightState/Rgb/State/Health/identity/wifi/mqtt/homekit/
+bootstrap contracts) and [`frontend/src/api.ts`](../../frontend/src/api.ts) (same-origin `fetch` client: state/effects/health,
+color/brightness/effect/power, systemAction, bootstrap, and all settings getters/setters +
+scanWifi). Non-2xx rejects with the server `error` message. `tsc --noEmit` clean. Satisfies
+R11.1, R11.3, R14.1, R16.2.
+
+### 2.2 — WS frame client, router, store — verified
+[`frontend/src/ws.ts`](../../frontend/src/ws.ts) (`connectFrames` — same-origin `/ws`, decodes `{pixels}`, reconnects ~1 s),
+[`frontend/src/router.ts`](../../frontend/src/router.ts) (`useRoute`/`navigate` over the History API + `popstate`), and
+[`frontend/src/store.tsx`](../../frontend/src/store.tsx) (`StoreProvider`/`useStore` — light state, effects, online flag, and an
+auto-dismissing toast queue). Hand-rolled router/store keep deps to preact only. `tsc --noEmit`
+clean. Satisfies R2.1, R2.3, R3.3, R10.1, R10.3, R16.1.
+
+### 2.3 — OctoCam-style CSS — verified
+[`frontend/src/styles.css`](../../frontend/src/styles.css): `:root` dark-theme tokens + app-shell/header, dashboard grid, preview
+canvas, color+swatches, custom range sliders, form controls, toggle switch, settings sidebar,
+pairing-code box, modal dialog, and toast — with responsive collapse. Imported once from
+`main.tsx`. `npm run build` bundles it (CSS 2.20 kB gz; total ~7 kB gz, far under the 50 kB
+budget). Satisfies R15.1 (and provides the visual system for R1–R9 parity).
+
+### 2.4 — MQTT availability + HA discovery + payload compat — verified
+[`src/mqtt.rs`](../../src/mqtt.rs): registers a retained `offline` Last-Will before connect;
+publishes retained `online` birth + (when discovery enabled) a retained HA JSON-schema light
+discovery config at `<prefix>/light/<object_id>/config` with stable `unique_id`, device block,
+command/state/availability topics, brightness + rgb + effect_list; the connection loop now breaks
+with an outcome so cleanup always runs — announcing `offline` and clearing discovery when MQTT or
+discovery has been turned off. `publish_state` emits HA `state`/`color` object (+ `color_mode`),
+dropping the legacy hex `color` per AUDIT-1; `commands_from_payload`/`parse_color` accept HA
+`state` and object `color`. Compiles; 60 tests pass (dedicated discovery/availability tests land in
+6.1). Satisfies R17.1–R17.4, R18.1–R18.4.
+
+### 2.5 — API MQTT fields + /api/bootstrap — verified
+[`src/api.rs`](../../src/api.rs): `MqttSettingsResponse`/`MqttSettingsSave` gain
+`availability_topic`/`discovery_enabled`/`discovery_prefix`; `post_mqtt` now takes them from the
+request body. Added `get_bootstrap` (Host/Origin-gated) returning state+seq+effects+all settings in
+one response and wired its `/api/bootstrap` route (the shape is a `json!` object with the fields
+the design's `BootstrapResponse` names — identical observable contract). Updated the MQTT save
+test body for the new fields. 60 tests pass; bootstrap equivalence + foreign-Origin 403 tests land
+in 6.1. Satisfies R6.1, R6.5, R6.6, R11.1, R11.2, R14.2.
+
 ### Execution Gantt
 
 ```mermaid
@@ -95,4 +141,10 @@ gantt
     section 1
     1.1 attempt 1 (verified, 2638s) :done, b_1_1_attempt1, 2026-08-16T18:01:04, 2026-08-16T18:45:02
     1.2 attempt 1 (verified, 110s) :done, b_1_2_attempt1, 2026-08-16T18:48:17, 2026-08-16T18:50:07
+    section 2
+    2.1 attempt 1 (verified, 62s) :done, b_2_1_attempt1, 2026-08-16T18:51:11, 2026-08-16T18:52:13
+    2.2 attempt 1 (verified, 75s) :done, b_2_2_attempt1, 2026-08-16T18:52:39, 2026-08-16T18:53:54
+    2.3 attempt 1 (verified, 89s) :done, b_2_3_attempt1, 2026-08-16T18:54:20, 2026-08-16T18:55:49
+    2.4 attempt 1 (verified, 199s) :done, b_2_4_attempt1, 2026-08-16T18:55:49, 2026-08-16T18:59:08
+    2.5 attempt 1 (verified, 129s) :done, b_2_5_attempt1, 2026-08-16T18:59:08, 2026-08-16T19:01:17
 ```
