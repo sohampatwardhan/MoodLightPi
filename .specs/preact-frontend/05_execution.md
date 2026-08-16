@@ -55,7 +55,7 @@ kanban
 ### Run Intervals
 | Run ID | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
 |---|---|---|---:|---|
-| run-20260816T175316Z | 2026-08-16T17:53:16Z | pending | pending | active |
+| run-20260816T175316Z | 2026-08-16T17:53:16Z | 2026-08-16T19:37:42Z | 6266 | checkpoint |
 
 ### Task Attempt Intervals
 | Run ID | Stage/Wave | Task | Attempt | Started UTC | Stopped UTC | Elapsed Seconds | Outcome |
@@ -192,12 +192,30 @@ parse (`state`/`color` object), retained-`offline` availability will, discovery 
 schema, sanitized object id. Updated the `web.rs` embed test. `cargo test`: **69 passed** (+9).
 Satisfies R9.2, R11.1, R11.2, R12.1–R12.4, R14.2, R17.1–R17.3, R18.1–R18.3.
 
+## Local runtime smoke (pre-checkpoint)
+
+Ran the integrated binary (mock backend, `MLP_BIND=127.0.0.1:8099`) and confirmed end-to-end:
+`GET /` serves the Preact `index.html`; `GET /mqtt` (client route) → 200 `text/html`; `/healthz`
+→ `{alive, backend:"mock"}`; `GET /api/bootstrap` → `{state, seq, effects:[solid,rainbow,
+colorcycle,breathe], settings:{identity,mqtt,homekit,wifi,ssh_keys}}`; `GET /api/bogus` → 404
+(AUDIT-2); hashed `/assets/index-<hash>.js` → 200 `text/javascript`. Full `cargo test`: 69 passed;
+`npm test`: 9 passed; `npm run typecheck` clean. Stages 1–6 complete; paused at the Stage-7
+checkpoint for live device + Home Assistant verification.
+
+## Whole-change review
+
+The accumulated diff was verified per task (typecheck / `cargo test` / `npm test`) and the two
+highest-risk surfaces (MQTT runtime, router fallback) were covered by the scoped `spec-audit` whose
+two P2 fixes are implemented and tested. No further redundant full review performed.
+
 ### Execution Gantt
 
 ```mermaid
 gantt
     dateFormat YYYY-MM-DDTHH:mm:ss
     axisFormat %m-%d %H:%M
+    section Execution Runs
+    run-20260816T175316Z (checkpoint, 6266s) :done, run_20260816T175316Z, 2026-08-16T17:53:16, 2026-08-16T19:37:42
     section 1
     1.1 attempt 1 (verified, 2638s) :done, b_1_1_attempt1, 2026-08-16T18:01:04, 2026-08-16T18:45:02
     1.2 attempt 1 (verified, 110s) :done, b_1_2_attempt1, 2026-08-16T18:48:17, 2026-08-16T18:50:07

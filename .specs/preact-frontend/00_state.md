@@ -15,7 +15,7 @@ Feature slug: `preact-frontend`. Change control and gate status for the spec-dri
 | Design | approved | [03_design.md](03_design.md) approved 2026-08-16; audit fixes AUDIT-1/2 re-approved 2026-08-16 |
 | Tasks | approved | [04_tasks.md](04_tasks.md) approved 2026-08-16 (15 tasks, 7 stages); audit fixes re-approved 2026-08-16 |
 | Audit | fixes_applied | medium, scoped (MQTT + router fallback) 2026-08-16; 2 P2 findings applied (AUDIT-1/2), no P0/P1 |
-| Execution | not started | |
+| Execution | checkpoint | Stages 1–6 complete & verified (69 cargo + 9 vitest tests); paused at Stage-7 live-verification checkpoint (7.1) awaiting user approval |
 | Finish | not started | |
 
 ## Change Control

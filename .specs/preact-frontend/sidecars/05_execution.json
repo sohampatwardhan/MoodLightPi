@@ -7,6 +7,20 @@
       {
         "bars": [
           {
+            "end": "2026-08-16T19:37:42",
+            "id": "run_20260816T175316Z",
+            "label": "run-20260816T175316Z (checkpoint, 6266s)",
+            "start": "2026-08-16T17:53:16",
+            "tags": [
+              "done"
+            ]
+          }
+        ],
+        "name": "Execution Runs"
+      },
+      {
+        "bars": [
+          {
             "end": "2026-08-16T18:45:02",
             "id": "b_1_1_attempt1",
             "label": "1.1 attempt 1 (verified, 2638s)",
@@ -165,15 +179,15 @@
   },
   "generated_from": {
     "file": "05_execution.md",
-    "sha256": "32be0f77975608870a39951b811be66c6ec4aecd3dfd6d217ad80226e0ca0f9f"
+    "sha256": "aa83e7de9b14f3a9e06ebd8d3b3e2080a6ed85c56d93965128754167810952c0"
   },
   "runs": [
     {
-      "elapsed_seconds": "pending",
-      "outcome": "active",
+      "elapsed_seconds": 6266,
+      "outcome": "checkpoint",
       "run_id": "run-20260816T175316Z",
       "started_utc": "2026-08-16T17:53:16Z",
-      "stopped_utc": "pending"
+      "stopped_utc": "2026-08-16T19:37:42Z"
     }
   ],
   "schema_version": 1,
@@ -319,11 +333,5 @@
       "task": "6.1"
     }
   ],
-  "unresolved": [
-    {
-      "id": "run-20260816T175316Z",
-      "kind": "run",
-      "reason": "active"
-    }
-  ]
+  "unresolved": []
 }
