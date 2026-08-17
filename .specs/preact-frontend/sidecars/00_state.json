@@ -17,7 +17,7 @@
       "status": "approved"
     },
     "execution": {
-      "evidence": "Stages 1\u20136 complete & verified (69 cargo + 9 vitest tests); paused at Stage-7 live-verification checkpoint (7.1) awaiting user approval",
+      "evidence": "Stages 1\u20136 complete & verified; 7.1 device-side verified live on `moodlightpi.local` (hardware backend, new SPA + bootstrap serving); MQTT\u2192HA broker round-trip is the remaining user gate",
       "status": "checkpoint"
     },
     "requirements": {
@@ -31,7 +31,7 @@
   },
   "generated_from": {
     "file": "00_state.md",
-    "sha256": "20c264ff6230fd80cebd424d142e0df6dddd35f3cde6dcde7da7b5744699dd91"
+    "sha256": "5e2bf78309179848eb3c67230456999852d28e1a4abae093ee92a7a74a28b965"
   },
   "schema_version": 1
 }

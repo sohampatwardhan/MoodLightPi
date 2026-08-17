@@ -15,7 +15,7 @@ Feature slug: `preact-frontend`. Change control and gate status for the spec-dri
 | Design | approved | [03_design.md](03_design.md) approved 2026-08-16; audit fixes AUDIT-1/2 re-approved 2026-08-16 |
 | Tasks | approved | [04_tasks.md](04_tasks.md) approved 2026-08-16 (15 tasks, 7 stages); audit fixes re-approved 2026-08-16 |
 | Audit | fixes_applied | medium, scoped (MQTT + router fallback) 2026-08-16; 2 P2 findings applied (AUDIT-1/2), no P0/P1 |
-| Execution | checkpoint | Stages 1–6 complete & verified (69 cargo + 9 vitest tests); paused at Stage-7 live-verification checkpoint (7.1) awaiting user approval |
+| Execution | checkpoint | Stages 1–6 complete & verified; 7.1 device-side verified live on `moodlightpi.local` (hardware backend, new SPA + bootstrap serving); MQTT→HA broker round-trip is the remaining user gate |
 | Finish | in progress | PR #1 opened against `main` (https://github.com/sohampatwardhan/MoodLightPi/pull/1); awaiting live 7.1 confirmation before merge |
 
 ## Change Control

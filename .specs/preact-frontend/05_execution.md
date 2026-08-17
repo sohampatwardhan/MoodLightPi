@@ -214,6 +214,23 @@ native build, which timed out (SSH banner timeout as the Pi Zero W thrashed unde
 device stayed healthy on the prior binary — nothing broke). Live device + Home Assistant/MQTT
 confirmation (7.1) remains the user's on-hardware gate.
 
+## 7.1 checkpoint — device-side verified on hardware (2026-08-17)
+
+Deployed via the cross-compile path ([`deploy/deploy-cross-armv6.sh`](../../deploy/deploy-cross-armv6.sh)): ARMv6 EABI5 binary built on
+the Mac in ~1m20s, installed on `moodlightpi.local`, service restarted. On-device checks (real
+`hardware` backend):
+- `/healthz` → `{alive:true, backend:"hardware"}`.
+- `GET /` serves the new Preact `index.html`; hashed `/assets/index-CU-Dcjh7.js` → 200
+  `text/javascript`; `/mqtt` client route → 200 `text/html` (SPA fallback); `/api/bogus` → 404.
+- `GET /api/bootstrap` returns effects + all settings incl. the new `mqtt.availability_topic`
+  (HomeKit still `paired`). Confirms R11, R12, R13.1/R13.2, and dashboard/settings parity live.
+
+**Remaining (user gate):** the live MQTT→broker→Home Assistant round-trip (R17/R18 observed on the
+wire) — needs the broker password (blocked for the agent by the safety classifier) and HA
+onboarding + MQTT integration on `141-hillside-1b.local`. The logic is unit-tested (69 cargo tests)
+and a step-by-step runbook is provided to the user. The 7.1 checkbox stays unchecked until that
+round-trip is confirmed on hardware.
+
 ## Whole-change review
 
 The accumulated diff was verified per task (typecheck / `cargo test` / `npm test`) and the two
