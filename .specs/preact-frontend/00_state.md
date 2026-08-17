@@ -16,7 +16,7 @@ Feature slug: `preact-frontend`. Change control and gate status for the spec-dri
 | Tasks | approved | [04_tasks.md](04_tasks.md) approved 2026-08-16 (15 tasks, 7 stages); audit fixes re-approved 2026-08-16 |
 | Audit | fixes_applied | medium, scoped (MQTT + router fallback) 2026-08-16; 2 P2 findings applied (AUDIT-1/2), no P0/P1 |
 | Execution | checkpoint | Stages 1–6 complete & verified (69 cargo + 9 vitest tests); paused at Stage-7 live-verification checkpoint (7.1) awaiting user approval |
-| Finish | not started | |
+| Finish | in progress | PR #1 opened against `main` (https://github.com/sohampatwardhan/MoodLightPi/pull/1); awaiting live 7.1 confirmation before merge |
 
 ## Change Control
 
@@ -39,5 +39,9 @@ Feature slug: `preact-frontend`. Change control and gate status for the spec-dri
 
 ## Current Status
 
-All planning gates approved and the scoped audit's two P2 fixes applied and re-approved 2026-08-16.
-Next action: `spec-execute` starting at Stage 1 (tasks 1.1, 1.2).
+Implementation stages 1–6 complete and verified (69 cargo + 9 vitest tests, tsc clean, local
+runtime smoke of the integrated binary). Branch `feature/preact-frontend` pushed; **PR #1** opened
+against `main`: https://github.com/sohampatwardhan/MoodLightPi/pull/1. Not merged — held for the
+Stage-7 live checkpoint (7.1). Live on-device deploy is via the cross-compile path
+(`deploy/deploy-cross-armv6.sh`); the Home Assistant entity round-trip additionally needs HA
+onboarding + the MQTT integration on the hub (`141-hillside-1b.local`).

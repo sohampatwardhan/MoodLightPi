@@ -202,6 +202,18 @@ colorcycle,breathe], settings:{identity,mqtt,homekit,wifi,ssh_keys}}`; `GET /api
 `npm test`: 9 passed; `npm run typecheck` clean. Stages 1–6 complete; paused at the Stage-7
 checkpoint for live device + Home Assistant verification.
 
+## Integration decision
+
+Chosen: **push + open PR** (keep `main` clean; let the live 7.1 check confirm before merge).
+Branch `feature/preact-frontend` pushed to `origin`; **PR #1** →
+https://github.com/sohampatwardhan/MoodLightPi/pull/1 (base `main`, 13 commits). Not merged.
+
+The on-device deploy uses the fast **cross-compile path** (`deploy/deploy-cross-armv6.sh`: Docker
+ARMv6 builder + Pi sysroot → stream artifact → install + `/healthz` check) rather than the on-Pi
+native build, which timed out (SSH banner timeout as the Pi Zero W thrashed under the compile; the
+device stayed healthy on the prior binary — nothing broke). Live device + Home Assistant/MQTT
+confirmation (7.1) remains the user's on-hardware gate.
+
 ## Whole-change review
 
 The accumulated diff was verified per task (typecheck / `cargo test` / `npm test`) and the two
