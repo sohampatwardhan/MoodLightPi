@@ -710,12 +710,19 @@ mod tests {
         // Shutdown never fires in these REST tests and no handler here observes
         // it, so dropping the sender is fine.
         let (_sd_tx, sd_rx) = tokio::sync::watch::channel(false);
+        // A process-wide counter guarantees a distinct temp dir per test even when the nanosecond
+        // clock is too coarse to differ between concurrent `test_app()` calls (which would
+        // otherwise share one settings.json and race).
+        static TEST_APP_SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
         let unique = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_nanos())
             .unwrap_or_default();
-        let base =
-            std::env::temp_dir().join(format!("mlp-api-test-{}-{unique}", std::process::id()));
+        let seq = TEST_APP_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let base = std::env::temp_dir().join(format!(
+            "mlp-api-test-{}-{unique}-{seq}",
+            std::process::id()
+        ));
         let _ = std::fs::create_dir_all(&base);
         router(AppState {
             engine: handle,
