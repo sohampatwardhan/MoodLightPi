@@ -1,0 +1,22 @@
+{
+  "diagram": "graph",
+  "target": "classDiagram",
+  "nodes": [
+    { "id": "BootstrapResponse", "members": ["+LightState state", "+u64 seq", "+string[] effects", "+Settings settings"] },
+    { "id": "Settings", "members": ["+IdentitySettings identity", "+MqttSettings mqtt", "+HomeKitStatus homekit", "+WifiSettings wifi", "+SshKeys ssh"] },
+    { "id": "LightState", "members": ["+bool power", "+string mode", "+Rgb rgb", "+u8 brightness", "+string effect_name", "+u8 speed"] },
+    { "id": "MqttSettings", "members": ["+bool enabled", "+string broker_url", "+string client_id", "+string username", "+bool password_set", "+string subscribe_topic", "+string publish_topic", "+string availability_topic", "+bool discovery_enabled", "+string discovery_prefix"] },
+    { "id": "MqttStatePayload", "members": ["+string state ON|OFF", "+u8 brightness", "+Rgb color", "+string effect", "+u8 speed"] },
+    { "id": "HaDiscoveryConfig", "members": ["+string schema json", "+string name", "+string unique_id", "+string command_topic", "+string state_topic", "+string availability_topic", "+string payload_available online", "+string payload_not_available offline", "+bool brightness", "+string[] supported_color_modes rgb", "+bool effect", "+string[] effect_list", "+Device device"] },
+    { "id": "Device", "members": ["+string[] identifiers", "+string name", "+string mf", "+string mdl", "+string sw"] },
+    { "id": "Rgb", "members": ["+u8 r", "+u8 g", "+u8 b"] }
+  ],
+  "edges": [
+    { "from": "BootstrapResponse", "to": "LightState", "kind": "composition", "label": "state" },
+    { "from": "BootstrapResponse", "to": "Settings", "kind": "composition", "label": "settings" },
+    { "from": "Settings", "to": "MqttSettings", "kind": "composition", "label": "mqtt" },
+    { "from": "LightState", "to": "Rgb", "kind": "composition", "label": "rgb" },
+    { "from": "MqttStatePayload", "to": "Rgb", "kind": "composition", "label": "color" },
+    { "from": "HaDiscoveryConfig", "to": "Device", "kind": "composition", "label": "device" }
+  ]
+}

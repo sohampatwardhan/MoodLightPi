@@ -1,0 +1,86 @@
+{
+  "decisions": [],
+  "exit_code": 0,
+  "findings": [],
+  "gate_status": "warnings",
+  "inventory": {
+    "complete": false,
+    "dependencies": [],
+    "fingerprint": "8c7c6ec061c7c79294ca928b41cae01171b7cd6d0bd02556fdf1ca54014da338",
+    "incomplete_reasons": [
+      "no supported resolved dependency evidence found"
+    ],
+    "packages": [],
+    "statuses": [
+      {
+        "attempted_at": "2026-08-16T18:39:06.708091Z",
+        "diagnostic": "",
+        "provenance": "",
+        "source": "inventory",
+        "state": "partial"
+      },
+      {
+        "attempted_at": "2026-08-16T18:39:06.707861Z",
+        "diagnostic": "resolved dependency inventory is incomplete",
+        "provenance": "",
+        "source": "inventory-completeness",
+        "state": "partial"
+      },
+      {
+        "attempted_at": "2026-08-16T18:39:06.708085Z",
+        "diagnostic": "no supported resolved evidence found",
+        "provenance": "",
+        "source": "native-adapters",
+        "state": "not_applicable"
+      }
+    ]
+  },
+  "mode": "change",
+  "project_revision": "34f666ffc8a2294da5aecbefcc1779e6cf29eab5",
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "attempted_at": "2026-08-16T18:39:06.708135Z",
+      "diagnostic": "ecosystem not present",
+      "provenance": "",
+      "source": "cargo-audit",
+      "state": "not_applicable"
+    },
+    {
+      "attempted_at": "2026-08-16T18:39:06.708137Z",
+      "diagnostic": "ecosystem not present",
+      "provenance": "",
+      "source": "govulncheck",
+      "state": "not_applicable"
+    },
+    {
+      "attempted_at": "2026-08-16T18:39:07.198612Z",
+      "diagnostic": "",
+      "provenance": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+      "source": "kev",
+      "state": "ok"
+    },
+    {
+      "attempted_at": "2026-08-16T18:39:06.708133Z",
+      "diagnostic": "ecosystem not present",
+      "provenance": "",
+      "source": "npm-audit",
+      "state": "not_applicable"
+    },
+    {
+      "attempted_at": "2026-08-16T18:39:06.708127Z",
+      "diagnostic": "",
+      "provenance": "no packages",
+      "source": "osv",
+      "state": "ok"
+    },
+    {
+      "attempted_at": "2026-08-16T18:39:06.708138Z",
+      "diagnostic": "ecosystem not present",
+      "provenance": "",
+      "source": "pip-audit",
+      "state": "not_applicable"
+    }
+  ],
+  "timestamp": "2026-08-16T18:39:06.707861Z"
+}

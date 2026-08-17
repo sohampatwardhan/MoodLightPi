@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "feature": "preact-frontend",
+  "depth": "medium",
+  "date": "2026-08-16",
+  "artifact_digest": "47d94f6c22266062d195fb77a55d9db273a58a9bf144830eb38bce4fac74f5b6",
+  "result": "passed",
+  "scope": "MQTT runtime change (R17/R18; tasks 1.2, 2.4) and axum router fallback + bootstrap (R11/R12/R14; tasks 2.5, 5.1)",
+  "findings": [
+    {
+      "id": "AUDIT-1",
+      "severity": "P2",
+      "certainty": "CERTAIN",
+      "artifact": "03_design.md Data Models / 04_tasks.md 2.4",
+      "summary": "MqttStatePayload uses 'color' as an RGB object, but the existing published state uses 'color' as a hex string (src/mqtt.rs:132) — key collision.",
+      "fix": "Let HA read 'color' as the {r,g,b} object; drop or rename the legacy hex-string 'color' (the existing 'rgb' object already carries the value). State the resolved key set in the task."
+    },
+    {
+      "id": "AUDIT-2",
+      "severity": "P2",
+      "certainty": "CERTAIN",
+      "artifact": "03_design.md serve_spa / 04_tasks.md 5.1",
+      "summary": "Unknown paths under /api/ or /ws (no explicit route) fall through to serve_spa and, being extension-less, would return index.html (200) instead of 404.",
+      "fix": "In serve_spa, return 404 for a request path beginning with 'api/' or equal to 'ws' before the client-route index.html fallback."
+    }
+  ],
+  "verify_checks": [
+    "CHECK-1: enabled->disabled exit path publishes retained 'offline' and clears discovery WHILE the client is still connected (before run_connection returns).",
+    "CHECK-2: commands_from_payload accepts HA {\"state\":\"ON\",\"brightness\":n,\"color\":{r,g,b}} and disambiguates object-vs-string 'color'.",
+    "CHECK-3: bundle gzipped JS+CSS <= 50 KB measured after build (R15.1).",
+    "CHECK-4: HA marks the entity unavailable on ungraceful service stop via the retained LWT."
+  ]
+}

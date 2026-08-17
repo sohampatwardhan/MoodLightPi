@@ -1,0 +1,15 @@
+stateDiagram-v2
+    direction LR
+    Disabled : MQTT disabled
+    Connecting : connecting (LWT=offline registered)
+    Online : connected: birth=online + discovery published (retained)
+    Reconnecting : connection lost -> broker publishes LWT offline
+    [*] --> Disabled
+    Disabled --> Connecting : enabled + settings valid
+    Connecting --> Online : broker connection ack
+    Connecting --> Reconnecting : connect fails
+    Online --> Reconnecting : connection dropped
+    Reconnecting --> Connecting : retry after delay
+    Online --> Disabled : disabled/shutdown: publish offline + clear discovery
+    Reconnecting --> Disabled : disabled
+    note right of Online : availability + discovery retained so HA sees current status on its own restart

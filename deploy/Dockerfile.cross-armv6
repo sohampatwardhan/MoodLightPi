@@ -1,0 +1,57 @@
+# syntax=docker/dockerfile:1
+
+FROM debian:trixie-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV RUSTUP_HOME=/opt/rustup
+ENV CARGO_HOME=/opt/cargo
+ENV PATH=/opt/cargo/bin:/usr/local/bin:$PATH
+
+RUN apt-get update -qq \
+  && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    clang \
+    curl \
+    file \
+    gcc-arm-linux-gnueabihf \
+    g++-arm-linux-gnueabihf \
+    git \
+    libclang-dev \
+    make \
+    pkg-config \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+  | sh -s -- -y --profile minimal --default-toolchain stable \
+  && rustup target add arm-unknown-linux-gnueabihf \
+  && rustc -vV
+
+RUN cat >/usr/local/bin/armv6-rpi-linux-gnueabihf-gcc <<'EOF' \
+  && cat >/usr/local/bin/armv6-rpi-linux-gnueabihf-g++ <<'EOFXX' \
+  && chmod +x /usr/local/bin/armv6-rpi-linux-gnueabihf-gcc /usr/local/bin/armv6-rpi-linux-gnueabihf-g++
+#!/usr/bin/env bash
+set -euo pipefail
+SYSROOT="${MLP_SYSROOT:-/sysroot}"
+GCC_LIB_DIR=$(find "$SYSROOT/usr/lib/gcc/arm-linux-gnueabihf" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)
+exec arm-linux-gnueabihf-gcc \
+  --sysroot="$SYSROOT" \
+  -B "$GCC_LIB_DIR/" \
+  -B "$SYSROOT/usr/lib/arm-linux-gnueabihf/" \
+  -march=armv6 \
+  -mfpu=vfp \
+  -mfloat-abi=hard \
+  "$@"
+EOF
+#!/usr/bin/env bash
+set -euo pipefail
+SYSROOT="${MLP_SYSROOT:-/sysroot}"
+GCC_LIB_DIR=$(find "$SYSROOT/usr/lib/gcc/arm-linux-gnueabihf" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)
+exec arm-linux-gnueabihf-g++ \
+  --sysroot="$SYSROOT" \
+  -B "$GCC_LIB_DIR/" \
+  -B "$SYSROOT/usr/lib/arm-linux-gnueabihf/" \
+  -march=armv6 \
+  -mfpu=vfp \
+  -mfloat-abi=hard \
+  "$@"
+EOFXX

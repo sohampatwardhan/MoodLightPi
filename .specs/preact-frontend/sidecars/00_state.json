@@ -1,0 +1,37 @@
+{
+  "change_control": [
+    "Any material change to the approved discovery boundary (chosen approach, scope, or the parity",
+    "Backend cleanup is in scope but must not change device behavior (engine, effects, persistence,"
+  ],
+  "gates": {
+    "audit": {
+      "evidence": "medium, scoped (MQTT + router fallback) 2026-08-16; 2 P2 findings applied (AUDIT-1/2), no P0/P1",
+      "status": "fixes_applied"
+    },
+    "design": {
+      "evidence": "[03_design.md](03_design.md) approved 2026-08-16; audit fixes AUDIT-1/2 re-approved 2026-08-16",
+      "status": "approved"
+    },
+    "discovery": {
+      "evidence": "approved 2026-08-16; MQTT availability + HA discovery delta re-approved 2026-08-16",
+      "status": "approved"
+    },
+    "execution": {
+      "evidence": "Stages 1\u20136 complete & verified; 7.1 device-side verified live on `moodlightpi.local` (hardware backend, new SPA + bootstrap serving); MQTT\u2192HA broker round-trip is the remaining user gate",
+      "status": "checkpoint"
+    },
+    "requirements": {
+      "evidence": "[02_requirements.md](02_requirements.md) approved 2026-08-16 (18 requirements, 62 criteria)",
+      "status": "approved"
+    },
+    "tasks": {
+      "evidence": "[04_tasks.md](04_tasks.md) approved 2026-08-16 (15 tasks, 7 stages); audit fixes re-approved 2026-08-16",
+      "status": "approved"
+    }
+  },
+  "generated_from": {
+    "file": "00_state.md",
+    "sha256": "5e2bf78309179848eb3c67230456999852d28e1a4abae093ee92a7a74a28b965"
+  },
+  "schema_version": 1
+}

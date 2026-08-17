@@ -1,0 +1,43 @@
+{
+  "diagram": "graph",
+  "target": "block",
+  "columns": 3,
+  "groups": [
+    { "id": "browser", "label": "Browser SPA (Preact + TS)" },
+    { "id": "server", "label": "axum HTTP / WS" },
+    { "id": "runtime", "label": "Device runtime" },
+    { "id": "build", "label": "Host build" }
+  ],
+  "nodes": [
+    { "id": "shell", "label": "App shell + client router", "kind": "process", "group": "browser" },
+    { "id": "dash", "label": "Dashboard: canvas preview, color, brightness, effect", "kind": "process", "group": "browser" },
+    { "id": "settings", "label": "Settings forms: identity/wifi/mqtt/homekit/ssh/device", "kind": "process", "group": "browser" },
+    { "id": "apiclient", "label": "typed api client (api.ts)", "kind": "process", "group": "browser" },
+    { "id": "wsclient", "label": "ws client (frame stream)", "kind": "process", "group": "browser" },
+    { "id": "spa", "label": "fallback: SPA + embedded assets", "kind": "process", "group": "server" },
+    { "id": "rest", "label": "/api/* handlers", "kind": "process", "group": "server" },
+    { "id": "boot", "label": "GET /api/bootstrap (aggregate)", "kind": "process", "group": "server" },
+    { "id": "wsh", "label": "GET /ws handler", "kind": "process", "group": "server" },
+    { "id": "engine", "label": "engine (state + frames)", "kind": "process", "group": "runtime" },
+    { "id": "store", "label": "settings store + persist", "kind": "store", "group": "runtime" },
+    { "id": "mqtt", "label": "mqtt: availability LWT + HA discovery", "kind": "process", "group": "runtime" },
+    { "id": "homekit", "label": "homekit", "kind": "process", "group": "runtime" },
+    { "id": "vite", "label": "frontend/ vite build", "kind": "process", "group": "build" },
+    { "id": "webdist", "label": "web-dist/ (committed, rust-embed)", "kind": "store", "group": "build" }
+  ],
+  "edges": [
+    { "from": "apiclient", "to": "rest", "label": "JSON" },
+    { "from": "apiclient", "to": "boot", "label": "initial load" },
+    { "from": "wsclient", "to": "wsh", "label": "frames" },
+    { "from": "spa", "to": "shell", "label": "loads" },
+    { "from": "rest", "to": "engine", "label": "commands" },
+    { "from": "boot", "to": "engine", "label": "state+effects" },
+    { "from": "boot", "to": "store", "label": "settings" },
+    { "from": "rest", "to": "store", "label": "settings" },
+    { "from": "wsh", "to": "engine", "label": "subscribe" },
+    { "from": "mqtt", "to": "engine", "label": "set / publish state" },
+    { "from": "mqtt", "to": "store", "label": "reads mqtt cfg" },
+    { "from": "vite", "to": "webdist", "label": "emits" },
+    { "from": "webdist", "to": "spa", "label": "embedded" }
+  ]
+}

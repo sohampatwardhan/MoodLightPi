@@ -1,0 +1,78 @@
+---
+config:
+  layout: elk
+---
+classDiagram
+    class BootstrapResponse {
+        +LightState state
+        +u64 seq
+        +string[] effects
+        +Settings settings
+    }
+    class Settings {
+        +IdentitySettings identity
+        +MqttSettings mqtt
+        +HomeKitStatus homekit
+        +WifiSettings wifi
+        +SshKeys ssh
+    }
+    class LightState {
+        +bool power
+        +string mode
+        +Rgb rgb
+        +u8 brightness
+        +string effect_name
+        +u8 speed
+    }
+    class MqttSettings {
+        +bool enabled
+        +string broker_url
+        +string client_id
+        +string username
+        +bool password_set
+        +string subscribe_topic
+        +string publish_topic
+        +string availability_topic
+        +bool discovery_enabled
+        +string discovery_prefix
+    }
+    class MqttStatePayload {
+        +string state ON|OFF
+        +u8 brightness
+        +Rgb color
+        +string effect
+        +u8 speed
+    }
+    class HaDiscoveryConfig {
+        +string schema json
+        +string name
+        +string unique_id
+        +string command_topic
+        +string state_topic
+        +string availability_topic
+        +string payload_available online
+        +string payload_not_available offline
+        +bool brightness
+        +string[] supported_color_modes rgb
+        +bool effect
+        +string[] effect_list
+        +Device device
+    }
+    class Device {
+        +string[] identifiers
+        +string name
+        +string mf
+        +string mdl
+        +string sw
+    }
+    class Rgb {
+        +u8 r
+        +u8 g
+        +u8 b
+    }
+    BootstrapResponse *-- LightState : state
+    BootstrapResponse *-- Settings : settings
+    Settings *-- MqttSettings : mqtt
+    LightState *-- Rgb : rgb
+    MqttStatePayload *-- Rgb : color
+    HaDiscoveryConfig *-- Device : device

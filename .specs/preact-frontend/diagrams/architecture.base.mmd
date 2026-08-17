@@ -1,0 +1,38 @@
+block
+  columns 3
+  block:browser["Browser SPA (Preact + TS)"]
+    shell["App shell + client router"]
+    dash["Dashboard: canvas preview, color, brightness, effect"]
+    settings["Settings forms: identity/wifi/mqtt/homekit/ssh/device"]
+    apiclient["typed api client (api.ts)"]
+    wsclient["ws client (frame stream)"]
+  end
+  block:server["axum HTTP / WS"]
+    spa["fallback: SPA + embedded assets"]
+    rest["/api/* handlers"]
+    boot["GET /api/bootstrap (aggregate)"]
+    wsh["GET /ws handler"]
+  end
+  block:runtime["Device runtime"]
+    engine["engine (state + frames)"]
+    store[("settings store + persist")]
+    mqtt["mqtt: availability LWT + HA discovery"]
+    homekit["homekit"]
+  end
+  block:build["Host build"]
+    vite["frontend/ vite build"]
+    webdist[("web-dist/ (committed, rust-embed)")]
+  end
+  apiclient-- "JSON" -->rest
+  apiclient-- "initial load" -->boot
+  wsclient-- "frames" -->wsh
+  spa-- "loads" -->shell
+  rest-- "commands" -->engine
+  boot-- "state+effects" -->engine
+  boot-- "settings" -->store
+  rest-- "settings" -->store
+  wsh-- "subscribe" -->engine
+  mqtt-- "set / publish state" -->engine
+  mqtt-- "reads mqtt cfg" -->store
+  vite-- "emits" -->webdist
+  webdist-- "embedded" -->spa

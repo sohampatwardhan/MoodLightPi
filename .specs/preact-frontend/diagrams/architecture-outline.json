@@ -1,0 +1,34 @@
+{
+  "diagram": "graph",
+  "target": "flowchart",
+  "direction": "LR",
+  "groups": [
+    { "id": "host", "label": "Host build time (Mac; Node/npm)" },
+    { "id": "pi", "label": "Pi runtime (ARMv6; Rust only)" },
+    { "id": "browser", "label": "Browser (LAN client)" }
+  ],
+  "nodes": [
+    { "id": "src", "label": "frontend/ source\n(Preact + TypeScript)", "kind": "process", "group": "host" },
+    { "id": "vite", "label": "vite build", "kind": "process", "group": "host" },
+    { "id": "bundle", "label": "built bundle\nindex.html + assets/[hash].js/.css", "kind": "store", "group": "host" },
+    { "id": "embed", "label": "rust-embed\n(compile-time embed)", "kind": "process", "group": "pi" },
+    { "id": "axum", "label": "axum server", "kind": "process", "group": "pi" },
+    { "id": "spa", "label": "SPA fallback -> index.html\n/assets/* -> hashed files", "kind": "process", "group": "pi" },
+    { "id": "api", "label": "/api/* handlers\n(+ /api/bootstrap)", "kind": "process", "group": "pi" },
+    { "id": "ws", "label": "/ws LED frame stream", "kind": "process", "group": "pi" },
+    { "id": "app", "label": "Preact SPA\ndashboard + settings", "kind": "process", "group": "browser" },
+    { "id": "canvas", "label": "canvas LED preview", "kind": "process", "group": "browser" }
+  ],
+  "edges": [
+    { "from": "src", "to": "vite", "label": "" },
+    { "from": "vite", "to": "bundle", "label": "" },
+    { "from": "bundle", "to": "embed", "label": "committed" },
+    { "from": "embed", "to": "axum", "label": "in binary" },
+    { "from": "axum", "to": "spa", "label": "" },
+    { "from": "axum", "to": "api", "label": "" },
+    { "from": "axum", "to": "ws", "label": "" },
+    { "from": "spa", "to": "app", "label": "loads" },
+    { "from": "api", "to": "app", "label": "JSON" },
+    { "from": "ws", "to": "canvas", "label": "frames" }
+  ]
+}

@@ -1,0 +1,31 @@
+---
+config:
+  layout: elk
+---
+flowchart LR
+  subgraph host["Host build time (Mac; Node/npm)"]
+    src@{ shape: rect, label: "frontend/ source (Preact + TypeScript)" }
+    vite@{ shape: rect, label: "vite build" }
+    bundle@{ shape: cyl, label: "built bundle index.html + assets/[hash].js/.css" }
+  end
+  subgraph pi["Pi runtime (ARMv6; Rust only)"]
+    embed@{ shape: rect, label: "rust-embed (compile-time embed)" }
+    axum@{ shape: rect, label: "axum server" }
+    spa@{ shape: rect, label: "SPA fallback -> index.html /assets/* -> hashed files" }
+    api@{ shape: rect, label: "/api/* handlers (+ /api/bootstrap)" }
+    ws@{ shape: rect, label: "/ws LED frame stream" }
+  end
+  subgraph browser["Browser (LAN client)"]
+    app@{ shape: rect, label: "Preact SPA dashboard + settings" }
+    canvas@{ shape: rect, label: "canvas LED preview" }
+  end
+  src --> vite
+  vite --> bundle
+  bundle -->|"committed"| embed
+  embed -->|"in binary"| axum
+  axum --> spa
+  axum --> api
+  axum --> ws
+  spa -->|"loads"| app
+  api -->|"JSON"| app
+  ws -->|"frames"| canvas
