@@ -43,5 +43,5 @@ Implementation stages 1–6 complete and verified (69 cargo + 9 vitest tests, ts
 runtime smoke of the integrated binary). Branch `feature/preact-frontend` pushed; **PR #1** opened
 against `main`: https://github.com/sohampatwardhan/MoodLightPi/pull/1. Not merged — held for the
 Stage-7 live checkpoint (7.1). Live on-device deploy is via the cross-compile path
-(`deploy/deploy-cross-armv6.sh`); the Home Assistant entity round-trip additionally needs HA
+([`deploy/deploy-cross-armv6.sh`](../../deploy/deploy-cross-armv6.sh)); the Home Assistant entity round-trip additionally needs HA
 onboarding + the MQTT integration on the hub (`141-hillside-1b.local`).
